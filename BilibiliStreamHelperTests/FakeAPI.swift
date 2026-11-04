@@ -12,6 +12,7 @@ final class FakeAPI: BilibiliAPI {
     var userInfo: UserInfo?
     var currentRoomId: String = ""
     var hasLoadedInitialLiveInfo = false
+    var isLiveActive = false
     
     // MARK: 桩
     

@@ -13,13 +13,10 @@ import CoreImage.CIFilterBuiltins
 
 struct LiveSettingsView: View {
     @StateObject private var apiService = APIClient.shared
-    @State private var liveTitle = "我的直播间"
-    @State private var selectedMainArea: LivePartition?
-    @State private var selectedSubArea: LiveSubPartition?
-    @StateObject private var vm = LiveSettingsViewModel()
+    @ObservedObject var vm: LiveSettingsViewModel
     
-    // 添加用于控制侧边栏选择的回调
-    var onNavigateToStreamInfo: (() -> Void)?
+    /// 「推流信息」按钮把页面滚到推流区（由 LivePageView 处理）
+    var onShowStreamInfo: () -> Void = {}
     
     var body: some View {
         ScrollView {
@@ -40,26 +37,26 @@ struct LiveSettingsView: View {
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                 Spacer()
-                                if !liveTitle.isEmpty {
-                                    Text("\(liveTitle.count)/80")
+                                if !vm.liveTitle.isEmpty {
+                                    Text("\(vm.liveTitle.count)/80")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }
                             }
                             
-                            TextField("输入直播标题", text: $liveTitle)
+                            TextField("输入直播标题", text: $vm.liveTitle)
                                 .textFieldStyle(.roundedBorder)
                                 .onSubmit {
-                                    if !liveTitle.isEmpty {
-                                        Task { await vm.updateTitle(liveTitle) }
+                                    if !vm.liveTitle.isEmpty {
+                                        Task { await vm.updateTitle(vm.liveTitle) }
                                     }
                                 }
                             
                             Button("更新标题") {
-                                Task { await vm.updateTitle(liveTitle) }
+                                Task { await vm.updateTitle(vm.liveTitle) }
                             }
                             .buttonStyle(.bordered)
-                            .disabled(liveTitle.isEmpty || vm.isLoading)
+                            .disabled(vm.liveTitle.isEmpty || vm.isLoading)
                         }
                         
                         Divider()
@@ -76,7 +73,7 @@ struct LiveSettingsView: View {
                                     Text("主分区")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
-                                    Picker("主分区", selection: $selectedMainArea) {
+                                    Picker("主分区", selection: $vm.selectedMainArea) {
                                         Text("请选择分区").tag(nil as LivePartition?)
                                         ForEach(apiService.partitions, id: \.id) { partition in
                                             Text(partition.name).tag(partition as LivePartition?)
@@ -86,21 +83,21 @@ struct LiveSettingsView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .onChange(of: selectedMainArea) { newValue in
+                                .onChange(of: vm.selectedMainArea) { newValue in
                                     if !vm.isLoadingInitialData {
-                                        selectedSubArea = nil
+                                        vm.selectedSubArea = nil
                                     }
                                 }
                                 
                                 // 子分区
-                                if let mainArea = selectedMainArea,
+                                if let mainArea = vm.selectedMainArea,
                                    let subAreas = mainArea.list,
                                    !subAreas.isEmpty {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("子分区")
                                             .font(.caption)
                                             .foregroundColor(.secondary)
-                                        Picker("子分区", selection: $selectedSubArea) {
+                                        Picker("子分区", selection: $vm.selectedSubArea) {
                                             Text("请选择子分区").tag(nil as LiveSubPartition?)
                                             ForEach(subAreas, id: \.id) { subArea in
                                                 Text(subArea.isLocked ? "\(subArea.name)（需权限）" : subArea.name)
@@ -131,10 +128,10 @@ struct LiveSettingsView: View {
                             
                             HStack(spacing: 12) {
                                 Button("更新分区") {
-                                    Task { await updateAreaFromSelection() }
+                                    Task { if let id = vm.selectedSubArea?.id { await vm.updateArea(areaId: id) } }
                                 }
                                 .buttonStyle(.bordered)
-                                .disabled(selectedSubArea == nil || vm.isLoading)
+                                .disabled(vm.selectedSubArea == nil || vm.isLoading)
                                 
                                 Button("刷新分区列表") {
                                     Task { await vm.refreshPartitions() }
@@ -149,78 +146,27 @@ struct LiveSettingsView: View {
                 // 直播控制卡片
                 SectionCard(
                     icon: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "play.circle",
-                    title: "直播控制",
+                    title: "直播状态",
                     accent: apiService.isLiveActive ? .green : .orange
                 ) {
-                        if apiService.isLiveActive {
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 8, height: 8)
-                                Text("直播中")
-                                    .font(.caption)
-                                    .foregroundColor(.green)
-                            }
+                    if apiService.isLiveActive {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            Text("直播中")
+                                .font(.caption)
+                                .foregroundColor(.green)
                         }
+                    }
                 } content: {
-                    VStack(spacing: 16) {
-                        if !apiService.isLiveActive {
-                            // 开始直播区域
-                            VStack(spacing: 12) {
-                                Text("准备开始直播")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                
-                                // 检查清单
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        Image(systemName: liveTitle.isEmpty ? "xmark.circle" : "checkmark.circle")
-                                            .foregroundColor(liveTitle.isEmpty ? .red : .green)
-                                        Text("直播标题已设置")
-                                            .font(.caption)
-                                    }
-                                    
-                                    HStack {
-                                        Image(systemName: selectedSubArea == nil ? "xmark.circle" : "checkmark.circle")
-                                            .foregroundColor(selectedSubArea == nil ? .red : .green)
-                                        Text("直播分区已选择")
-                                            .font(.caption)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
-                                .background(Color.gray.opacity(0.05))
-                                .cornerRadius(8)
-                                
-                                Button("开始直播") {
-                                    Task { await startLiveFromSelection() }
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .controlSize(.large)
-                                .disabled(liveTitle.isEmpty || selectedSubArea == nil || vm.isLoading)
-                            }
-                        } else {
-                            // 直播进行中区域
-                            VStack(spacing: 12) {
-                                Text("直播进行中")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.green)
-                                
-                                Text("直播已开始，请在推流信息页面获取推流地址和密钥")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                                
-                                Button("停止直播") {
-                                    Task { await vm.stopLive() }
-                                }
-                                .buttonStyle(.bordered)
-                                .controlSize(.large)
-                                .foregroundColor(.red)
-                                .disabled(vm.isLoading)
-                            }
-                        }
+                    VStack(spacing: 12) {
+                        Text(apiService.isLiveActive
+                             ? "直播进行中。开始和停止直播请用页面顶部的主按钮。"
+                             : "填写好标题和分区后，用页面顶部的「开始直播」开播。")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         
                         Divider()
                         
@@ -235,7 +181,7 @@ struct LiveSettingsView: View {
                             Spacer()
                             
                             Button("推流信息") {
-                                onNavigateToStreamInfo?()
+                                onShowStreamInfo()
                             }
                             .buttonStyle(.bordered)
                         }
@@ -355,12 +301,12 @@ struct LiveSettingsView: View {
     
     
     private func setupInitialValues() {
-        if !apiService.partitions.isEmpty && selectedMainArea == nil {
-            selectedMainArea = apiService.partitions.first
+        if !apiService.partitions.isEmpty && vm.selectedMainArea == nil {
+            vm.selectedMainArea = apiService.partitions.first
         }
         
         if let liveInfo = apiService.liveInfo {
-            updateUIWithLiveInfo(liveInfo)
+            vm.applyLiveInfo(liveInfo)
         }
         
         // 首次登录且未加载过时才自动拉一次
@@ -371,44 +317,8 @@ struct LiveSettingsView: View {
     
     private func reloadLiveInfo() async {
         guard let info = await vm.loadInitialLiveInfo() else { return }
-        updateUIWithLiveInfo(info)
+        vm.applyLiveInfo(info)
     }
-    
-    private func updateAreaFromSelection() async {
-        guard let areaId = selectedSubArea?.id else { return }
-        await vm.updateArea(areaId: areaId)
-    }
-    
-    private func startLiveFromSelection() async {
-        guard let areaId = selectedSubArea?.id else { return }
-        await vm.startLive(title: liveTitle, areaId: areaId)
-    }
-    
-    private func updateUIWithLiveInfo(_ liveInfo: LiveInfo) {
-        // 更新直播标题
-        self.liveTitle = liveInfo.title
-        
-        // 根据当前分区ID找到对应的分区和子分区
-        if let mainArea = apiService.partitions.first(where: { partition in
-            partition.list?.contains(where: { $0.id == liveInfo.areaId }) == true
-        }),
-        let subArea = mainArea.list?.first(where: { $0.id == liveInfo.areaId }) {
-            // 先设置主分区
-            self.selectedMainArea = mainArea
-            // 使用DispatchQueue.main.async确保子分区设置在下一个RunLoop周期
-            DispatchQueue.main.async {
-                self.selectedSubArea = subArea
-            }
-        } else {
-            AppLog.live.debug("未找到匹配的分区，areaId: \(liveInfo.areaId, privacy: .public)")
-        }
-    }
-    
-    
-    
-    
-    
-    
     
     private func openLiveRoom() {
         guard let userInfo = apiService.userInfo else { return }
@@ -455,5 +365,5 @@ struct StepView: View {
 }
 
 #Preview {
-    LiveSettingsView()
+    LiveSettingsView(vm: LiveSettingsViewModel())
 }

@@ -122,23 +122,6 @@ struct StreamInfoView: View {
                                     .textSelection(.enabled)
                             }
                             
-                            Divider()
-                            
-                            // 操作按钮
-                            HStack(spacing: 12) {
-                                Button("停止直播") {
-                                    Task {
-                                        if await vm.stopLive() {
-                                            copyToastMessage = "直播已停止"
-                                            showCopyToast = true
-                                        }
-                                    }
-                                }
-                                .buttonStyle(.bordered)
-                                .foregroundColor(.red)
-                                
-                                Spacer()
-                            }
                         }
                     }
                         

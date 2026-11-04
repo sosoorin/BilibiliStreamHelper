@@ -21,6 +21,7 @@ protocol BilibiliAPI: AnyObject {
     var userInfo: UserInfo? { get }
     var currentRoomId: String { get }
     var hasLoadedInitialLiveInfo: Bool { get set }
+    var isLiveActive: Bool { get }
     
     // MARK: - 登录
     

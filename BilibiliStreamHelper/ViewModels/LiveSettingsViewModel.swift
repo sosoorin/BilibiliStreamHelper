@@ -23,6 +23,12 @@ final class LiveSettingsViewModel: ObservableObject {
         self.api = api
     }
     
+    // MARK: - 表单状态（用户在填什么）
+    
+    @Published var liveTitle = "我的直播间"
+    @Published var selectedMainArea: LivePartition?
+    @Published var selectedSubArea: LiveSubPartition?
+    
     // MARK: - 流程状态
     
     @Published var isLoading = false
@@ -38,6 +44,45 @@ final class LiveSettingsViewModel: ObservableObject {
     @Published var showNavigationConfirm = false
     @Published var showFaceVerification = false
     @Published var faceVerificationQRImage: NSImage?
+    
+    // MARK: - 主操作
+    
+    /// 现在能不能开播；不能的话 reason 说明缺什么
+    var startBlockedReason: String? {
+        if api.isLiveActive { return nil }
+        if liveTitle.trimmingCharacters(in: .whitespaces).isEmpty { return "请先填写直播标题" }
+        if selectedSubArea == nil { return "请先选择直播分区" }
+        return nil
+    }
+    
+    var canStartLive: Bool {
+        !api.isLiveActive && startBlockedReason == nil && !isLoading
+    }
+    
+    /// 用当前表单里的标题和分区开播
+    func startLiveWithCurrentSelection() async {
+        guard let areaId = selectedSubArea?.id else { return }
+        await startLive(title: liveTitle, areaId: areaId)
+    }
+    
+    /// 把房间信息回填到表单（主分区由 areaId 反查）
+    func applyLiveInfo(_ info: LiveInfo) {
+        liveTitle = info.title
+        
+        guard let main = api.partitions.first(where: { partition in
+            partition.list?.contains(where: { $0.id == info.areaId }) == true
+        }), let sub = main.list?.first(where: { $0.id == info.areaId }) else {
+            AppLog.live.debug("未找到匹配的分区，areaId: \(info.areaId, privacy: .public)")
+            return
+        }
+        selectedMainArea = main
+        selectedSubArea = sub
+    }
+    
+    /// 第一次选中某个主分区时，把子分区清掉
+    func clearSubSelection() {
+        selectedSubArea = nil
+    }
     
     // MARK: - 读取
     
