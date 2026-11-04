@@ -464,7 +464,7 @@ struct LiveSettingsView: View {
     private func handleFaceVerification(code: Int, qrURL: String?, message: String) {
         if let qrURL, !qrURL.isEmpty {
             self.faceVerificationQRUrl = qrURL
-            self.generateQRCodeImage(from: qrURL)
+            self.faceVerificationQRImage = QRCodeGenerator.image(from: qrURL)
             self.showFaceVerification = true
         } else {
             // B站 没给可用的认证链接，就把它的原话和错误码原样给用户
@@ -475,34 +475,6 @@ struct LiveSettingsView: View {
         }
     }
     
-    private func generateQRCodeImage(from string: String) {
-        let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
-        
-        guard let data = string.data(using: .utf8) else { 
-            print("无法将字符串转换为数据")
-            return 
-        }
-        
-        filter.message = data
-        filter.correctionLevel = "M"
-        
-        guard let outputImage = filter.outputImage else { 
-            print("无法生成二维码图像")
-            return 
-        }
-        
-        // 放大二维码
-        let transform = CGAffineTransform(scaleX: 10, y: 10)
-        let scaledImage = outputImage.transformed(by: transform)
-        
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { 
-            print("无法创建CGImage")
-            return 
-        }
-        
-        self.faceVerificationQRImage = NSImage(cgImage: cgImage, size: scaledImage.extent.size)
-    }
     
     private func setupInitialValues() {
         // 设置默认值

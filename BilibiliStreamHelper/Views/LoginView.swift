@@ -445,7 +445,7 @@ struct LoginView: View {
             
             // 生成二维码图片
             await MainActor.run {
-                self.qrCodeImage = generateQRCodeImage(from: qrInfo.url)
+                self.qrCodeImage = QRCodeGenerator.image(from: qrInfo.url)
                 self.statusMessage = "请使用B站客户端扫描二维码"
                 
                 // 开始轮询登录状态
@@ -459,25 +459,6 @@ struct LoginView: View {
         }
     }
     
-    private func generateQRCodeImage(from string: String) -> NSImage? {
-        let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
-        
-        guard let data = string.data(using: .utf8) else { return nil }
-        
-        filter.message = data
-        filter.correctionLevel = "M"
-        
-        guard let outputImage = filter.outputImage else { return nil }
-        
-        // 放大二维码
-        let transform = CGAffineTransform(scaleX: 10, y: 10)
-        let scaledImage = outputImage.transformed(by: transform)
-        
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-        
-        return NSImage(cgImage: cgImage, size: scaledImage.extent.size)
-    }
     
     private func startPolling() {
         guard let qrInfo = qrCodeInfo, !isPolling else { return }
