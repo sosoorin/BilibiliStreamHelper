@@ -432,8 +432,8 @@ struct LiveSettingsView: View {
                 
             case .apiError(let code, let message):
                 switch code {
-                case 60024:
-                    // 需要人脸认证
+                case 60024, 60043:
+                    // 需要人脸认证（60024 接口给链接，60043 客户端自己拼）
                     handleFaceVerificationError(message)
                 case 3:
                     apiService.logout()
