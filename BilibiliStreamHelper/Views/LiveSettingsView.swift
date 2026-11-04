@@ -23,11 +23,16 @@ struct LiveSettingsView: View {
             VStack(spacing: 24) {
                 // 基础设置卡片
                 SectionCard(icon: "gear", title: "基础设置", accent: .blue) {
-                    Button("刷新") {
+                    Button {
                         Task { await vm.refreshAll() }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
                     }
-                    .font(.caption)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                     .disabled(vm.isLoading)
+                    .help("刷新分区列表和房间信息")
+                    .accessibilityLabel("刷新")
                 } content: {
                     VStack(spacing: 16) {
                         // 直播标题
