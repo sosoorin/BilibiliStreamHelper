@@ -418,9 +418,6 @@ struct LiveSettingsView: View {
     // MARK: - 私有方法
     
     private func handleAPIError(_ error: Error) {
-        // 打印error的类型
-        print("handleAPIError: \(type(of: error))")
-        
         // 检查是否是BilibiliAPIError
         if let apiError = error as? BilibiliAPIError {
             switch apiError {
@@ -440,8 +437,8 @@ struct LiveSettingsView: View {
                     self.errorMessage = "Cookie失效，请重新登录"
                     self.showError = true
                 default:
-                    // 其他API错误
-                    self.errorMessage = message.isEmpty ? "操作失败，错误代码: \(code)" : message
+                    // 其他API错误：翻译成人话，同时保留原始信息
+                    self.errorMessage = BilibiliLiveErrorText.userFacing(code: code, fallback: message)
                     self.showError = true
                 }
             default:
@@ -468,8 +465,6 @@ struct LiveSettingsView: View {
                 qrUrl = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
             }
         }
-        
-        print("人脸认证二维码URL: \(qrUrl)")
         
         if !qrUrl.isEmpty {
             // 保存二维码URL并生成二维码图片
