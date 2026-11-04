@@ -18,43 +18,6 @@ struct StreamInfoView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // 推流状态卡片
-                SectionCard(
-                    icon: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "stop.circle",
-                    title: "推流状态",
-                    accent: apiService.isLiveActive ? .green : .gray
-                ) {
-                        if apiService.isLiveActive {
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 8, height: 8)
-                                Text("直播中")
-                                    .font(.caption)
-                                    .foregroundColor(.green)
-                            }
-                        }
-                } content: {
-                    VStack(spacing: 16) {
-                        // 推流状态指示器
-                        VStack(spacing: 15) {
-                            Circle()
-                                .fill(apiService.isLiveActive ? Color.green : Color.gray)
-                                .frame(width: 60, height: 60)
-                                .overlay(
-                                    Image(systemName: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "stop.circle")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
-                                )
-                                .shadow(radius: 5)
-                            
-                            Text(apiService.isLiveActive ? "直播进行中" : "直播未开始")
-                                .font(.headline)
-                                .foregroundColor(apiService.isLiveActive ? .green : .secondary)
-                        }
-                    }
-                }
-                    
                 if let streamInfo = apiService.streamInfo {
                     // 推流信息卡片
                     SectionCard(icon: "server.rack", title: "推流信息", accent: .blue) {
@@ -125,45 +88,8 @@ struct StreamInfoView: View {
                         }
                     }
                         
-                } else {
-                    // 无推流信息时的提示卡片
-                    SectionCard(icon: "info.circle", title: "获取推流信息", accent: .orange) {
-                    } content: {
-                        VStack(spacing: 20) {
-                            VStack(spacing: 15) {
-                                Image(systemName: "tv.slash")
-                                    .font(.system(size: 50))
-                                    .foregroundColor(.gray)
-                                
-                                Text("暂无推流信息")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.secondary)
-                                
-                                Text("请先开始直播以获取推流信息")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            Divider()
-                            
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("获取推流码的步骤")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                
-                                VStack(alignment: .leading, spacing: 8) {
-                                    StepInstructionRow(step: "1", text: "前往\"直播设置\"页面")
-                                    StepInstructionRow(step: "2", text: "设置直播标题和分区")
-                                    StepInstructionRow(step: "3", text: "点击\"开始直播\"按钮")
-                                    StepInstructionRow(step: "4", text: "回到此页面查看推流信息")
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
                 }
-                    
+                
                 // OBS 使用说明卡片
                 SectionCard(icon: "desktopcomputer", title: "OBS 设置说明", accent: .green) {
                 } content: {
@@ -282,30 +208,6 @@ struct StreamInfoView: View {
 }
 
 // MARK: - 步骤说明行（用于获取推流信息步骤）
-struct StepInstructionRow: View {
-    let step: String
-    let text: String
-    
-    var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            Text(step)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .frame(width: 20, height: 20)
-                .background(Color.orange)
-                .clipShape(Circle())
-            
-            Text(text)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            Spacer()
-        }
-    }
-}
-
 // MARK: - 说明步骤行
 struct InstructionRow: View {
     let step: String
