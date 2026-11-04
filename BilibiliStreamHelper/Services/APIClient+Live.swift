@@ -68,9 +68,7 @@ extension APIClient {
             headers: Constants.header
         )
         
-        guard timestampJson["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(timestampJson["code"].intValue, timestampJson["message"].stringValue)
-        }
+        try throwIfFailed(timestampJson)
         
         let timestamp = timestampJson["data"]["now"].intValue
         
@@ -89,9 +87,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard versionJson["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(versionJson["code"].intValue, versionJson["message"].stringValue)
-        }
+        try throwIfFailed(versionJson)
         
         // 3. 开始直播
         var startData = Constants.startData
@@ -136,9 +132,7 @@ extension APIClient {
             )
         }
         
-        guard startResponse["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(startResponse["code"].intValue, startResponse["message"].stringValue)
-        }
+        try throwIfFailed(startResponse)
         
         // 解析推流信息
         let rtmpData = startResponse["data"]["rtmp"]
@@ -175,9 +169,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
-        }
+        try throwIfFailed(response)
         
         // 在主线程更新UI状态
         await MainActor.run {
@@ -206,9 +198,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
-        }
+        try throwIfFailed(response)
     }
 
     
@@ -223,9 +213,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
-        }
+        try throwIfFailed(response)
         
         let partitionsData = response["data"]
         var partitions: [LivePartition] = []
@@ -273,9 +261,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
-        }
+        try throwIfFailed(response)
     }
 
     
@@ -299,9 +285,7 @@ extension APIClient {
             cookies: cookies
         )
         
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
-        }
+        try throwIfFailed(response)
     }
 
 }

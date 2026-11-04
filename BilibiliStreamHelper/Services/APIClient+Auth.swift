@@ -174,9 +174,7 @@ extension APIClient {
             }
             
             let json = try JSON(data: data)
-            guard json["code"].intValue == 0 else {
-                throw BilibiliAPIError.apiError(json["code"].intValue, json["message"].stringValue)
-            }
+            try throwIfFailed(json)
             
             let qrData = json["data"]
             return QRCodeInfo(

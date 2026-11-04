@@ -1,4 +1,5 @@
 import Foundation
+import SwiftyJSON
 import Testing
 @testable import BilibiliStreamHelper
 
@@ -122,5 +123,30 @@ struct ErrorDisplayTests {
         
         #expect(display.title.contains("12345"))
         #expect(!display.message.isEmpty)
+    }
+}
+
+// MARK: - 业务码错误文案
+
+@Suite("接口错误文案")
+@MainActor
+struct APIErrorMessageTests {
+    
+    /// message 有值就用 message
+    @Test func prefersMessageField() {
+        let json = JSON(["code": 60034, "message": "系统维护", "msg": "另一个说法"])
+        #expect(APIClient.errorMessage(from: json) == "系统维护")
+    }
+    
+    /// B站 有的接口只填 msg
+    @Test func fallsBackToMsgWhenMessageEmpty() {
+        let json = JSON(["code": 60034, "message": "", "msg": "只填了 msg"])
+        #expect(APIClient.errorMessage(from: json) == "只填了 msg")
+    }
+    
+    /// 两个都空就返回空串，交给上层兜底
+    @Test func returnsEmptyWhenBothMissing() {
+        let json = JSON(["code": 1])
+        #expect(APIClient.errorMessage(from: json).isEmpty)
     }
 }

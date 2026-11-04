@@ -89,11 +89,29 @@ class APIClient: ObservableObject {
         if json["code"].intValue == 0 {
             let roomId = json["data"]["room_id"].intValue
             self.roomId = "\(roomId)"
-            print("获取到直播间ID: \(roomId)")
+            AppLog.network.debug("获取到直播间ID: \(roomId, privacy: .public)")
         }
     }
 
     
+    // MARK: - 业务码校验
+
+    /// 统一的业务码判断：code 非 0 就抛出带原文的 apiError。
+    /// 原来每个接口自己写一段 guard，十处一模一样。
+    func throwIfFailed(_ json: JSON) throws {
+        let code = json["code"].intValue
+        guard code == 0 else {
+            throw BilibiliAPIError.apiError(code, Self.errorMessage(from: json))
+        }
+    }
+
+    /// B站 有的接口只填 message、有的只填 msg，两边都看一眼
+    static func errorMessage(from json: JSON) -> String {
+        let message = json["message"].stringValue
+        if !message.isEmpty { return message }
+        return json["msg"].stringValue
+    }
+
     func requestAPI(
         url: String,
         method: HTTPMethod = .POST,
