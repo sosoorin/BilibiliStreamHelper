@@ -16,6 +16,7 @@ struct LiveSettingsView: View {
     @State private var selectedMainArea: LivePartition?
     @State private var selectedSubArea: LiveSubPartition?
     @State private var showError = false
+    @State private var errorTitle = "操作失败"
     @State private var errorMessage = ""
     @State private var showSuccess = false
     @State private var successMessage = ""
@@ -329,7 +330,7 @@ struct LiveSettingsView: View {
             } message: {
                 Text(successMessage)
             }
-            .alert("操作失败", isPresented: $showError) {
+            .alert(errorTitle, isPresented: $showError) {
                 Button("确定") { }
             } message: {
                 Text(errorMessage)
@@ -424,6 +425,7 @@ struct LiveSettingsView: View {
             case .authenticationRequired:
                 // Cookie失效
                 apiService.logout()
+                self.errorTitle = "操作失败"
                 self.errorMessage = "Cookie失效，请重新登录"
                 self.showError = true
                 
@@ -434,20 +436,25 @@ struct LiveSettingsView: View {
                     handleFaceVerificationError(message)
                 case 3:
                     apiService.logout()
+                    self.errorTitle = "操作失败"
                     self.errorMessage = "Cookie失效，请重新登录"
                     self.showError = true
                 default:
-                    // 其他API错误：翻译成人话，同时保留原始信息
-                    self.errorMessage = BilibiliLiveErrorText.userFacing(code: code, fallback: message)
+                    // 其他API错误：标题带错误码，正文给建议 + B站 原话
+                    let display = BilibiliLiveErrorText.display(code: code, message: message)
+                    self.errorTitle = display.title
+                    self.errorMessage = display.message
                     self.showError = true
                 }
             default:
                 // 其他BilibiliAPIError类型
+                self.errorTitle = "操作失败"
                 self.errorMessage = error.localizedDescription
                 self.showError = true
             }
         } else {
             // 其他类型的错误
+            self.errorTitle = "操作失败"
             self.errorMessage = error.localizedDescription
             self.showError = true
         }
@@ -473,7 +480,8 @@ struct LiveSettingsView: View {
             self.showFaceVerification = true
         } else {
             // 没有二维码URL的情况，只显示提示
-            self.errorMessage = "需要进行人脸认证，请在B站手机客户端完成认证后重试"
+            self.errorTitle = "需要人脸认证"
+            self.errorMessage = "本次开播需要在手机客户端完成人脸认证后再试。"
             self.showError = true
         }
     }
