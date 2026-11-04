@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import CryptoKit
 import SwiftyJSON
 import Combine
@@ -24,9 +25,9 @@ extension BilibiliAPIService {
         if !cookies.isEmpty {
             let cookieString = cookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
             request.setValue(cookieString, forHTTPHeaderField: "Cookie")
-            print("发送Cookie: \(cookieString)")
+            AppLog.network.debug("发送 Cookie: \(LogMask.maskCookies(cookieString), privacy: .public)")
         } else {
-            print("警告：没有可用的Cookie")
+            AppLog.network.debug("没有可用的 Cookie")
         }
         
         let (data, response) = try await session.data(for: request)
@@ -36,12 +37,8 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.invalidResponse
         }
         
-        // 添加调试输出
-        if let jsonString = String(data: data, encoding: .utf8) {
-            print("用户信息API响应: \(jsonString)")
-        }
-        
         let json = try JSON(data: data)
+        AppLog.network.debug("用户信息响应: \(LogMask.describe(json.object), privacy: .public)")
         let code = json["code"].intValue
         
         // 如果是未登录状态，返回认证错误

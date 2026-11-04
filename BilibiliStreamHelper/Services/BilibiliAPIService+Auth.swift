@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import CryptoKit
 import SwiftyJSON
 import Combine
@@ -240,12 +241,10 @@ extension BilibiliAPIService {
         if let httpFields = response.allHeaderFields as? [String: String] {
             let cookies = HTTPCookie.cookies(withResponseHeaderFields: httpFields, for: response.url!)
             
-            print("从响应中获取到 \(cookies.count) 个cookies")
+            AppLog.auth.debug("从响应中获取到 \(cookies.count) 个 Cookie: \(cookies.map(\.name).joined(separator: ", "), privacy: .public)")
             for cookie in cookies {
-                print("Cookie: \(cookie.name) = \(cookie.value)")
                 if cookie.name == "bili_jct" {
                     self.csrfToken = cookie.value
-                    print("找到CSRF token: \(cookie.value)")
                 }
             }
             

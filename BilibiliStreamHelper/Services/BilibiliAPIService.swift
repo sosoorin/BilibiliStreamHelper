@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import CryptoKit
 import SwiftyJSON
 import Combine
@@ -131,6 +132,8 @@ class BilibiliAPIService: ObservableObject {
             request.httpBody = bodyString.data(using: .utf8)
         }
         
+        AppLog.network.debug("→ \(String(describing: method), privacy: .public) \(url, privacy: .public)")
+        
         do {
             let (responseData, response) = try await session.data(for: request)
             
@@ -138,12 +141,17 @@ class BilibiliAPIService: ObservableObject {
                 throw BilibiliAPIError.invalidResponse
             }
             
+            let json = try JSON(data: responseData)
+            // 响应体可能含推流码 / SESSDATA / 人脸认证链接，一律脱敏后再打
+            AppLog.network.debug("← \(httpResponse.statusCode, privacy: .public) \(LogMask.describe(json.object), privacy: .public)")
+            
             if httpResponse.statusCode == 200 {
-                return try JSON(data: responseData)
+                return json
             } else {
                 throw BilibiliAPIError.invalidResponse
             }
         } catch {
+            AppLog.network.error("请求失败 \(url, privacy: .public): \(error.localizedDescription, privacy: .public)")
             throw BilibiliAPIError.networkError(error)
         }
     }
