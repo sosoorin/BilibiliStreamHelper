@@ -306,17 +306,25 @@ struct LiveSettingsView: View {
     
     
     private func setupInitialValues() {
-        if !apiService.partitions.isEmpty && vm.selectedMainArea == nil {
-            vm.selectedMainArea = apiService.partitions.first
-        }
-        
-        if let liveInfo = apiService.liveInfo {
-            vm.applyLiveInfo(liveInfo)
-        }
-        
-        // 首次登录且未加载过时才自动拉一次
-        if !apiService.hasLoadedInitialLiveInfo {
-            Task { await reloadLiveInfo() }
+        Task {
+            // 分区列表是下拉框选中项的依据：列表还没到时回填会找不到对应项，
+            // 所以先把它拉齐再谈回填。
+            if apiService.partitions.isEmpty {
+                _ = try? await apiService.getPartitions()
+            }
+            
+            if let liveInfo = apiService.liveInfo {
+                vm.applyLiveInfo(liveInfo)
+            } else if !apiService.hasLoadedInitialLiveInfo {
+                if let info = await vm.loadInitialLiveInfo() {
+                    vm.applyLiveInfo(info)
+                }
+            }
+            
+            // 仍然没有选中项时，默认选第一个主分区
+            if vm.selectedMainArea == nil {
+                vm.selectedMainArea = apiService.partitions.first
+            }
         }
     }
     
