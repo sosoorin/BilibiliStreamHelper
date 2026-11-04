@@ -16,17 +16,7 @@ struct LiveSettingsView: View {
     @State private var liveTitle = "我的直播间"
     @State private var selectedMainArea: LivePartition?
     @State private var selectedSubArea: LiveSubPartition?
-    @State private var showError = false
-    @State private var errorTitle = "操作失败"
-    @State private var errorMessage = ""
-    @State private var showSuccess = false
-    @State private var successMessage = ""
-    @State private var isLoading = false
-    @State private var isLoadingInitialData = false
-    @State private var showNavigationConfirm = false
-    @State private var showFaceVerification = false
-    @State private var faceVerificationQRUrl = ""
-    @State private var faceVerificationQRImage: NSImage?
+    @StateObject private var vm = LiveSettingsViewModel()
     
     // 添加用于控制侧边栏选择的回调
     var onNavigateToStreamInfo: (() -> Void)?
@@ -45,10 +35,10 @@ struct LiveSettingsView: View {
                             .fontWeight(.semibold)
                         Spacer()
                         Button("刷新信息") {
-                            Task { await loadCurrentLiveInfo() }
+                            Task { await reloadLiveInfo() }
                         }
                         .font(.caption)
-                        .disabled(isLoading)
+                        .disabled(vm.isLoading)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -74,15 +64,15 @@ struct LiveSettingsView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .onSubmit {
                                     if !liveTitle.isEmpty {
-                                        Task { await updateTitle() }
+                                        Task { await vm.updateTitle(liveTitle) }
                                     }
                                 }
                             
                             Button("更新标题") {
-                                Task { await updateTitle() }
+                                Task { await vm.updateTitle(liveTitle) }
                             }
                             .buttonStyle(.bordered)
-                            .disabled(liveTitle.isEmpty || isLoading)
+                            .disabled(liveTitle.isEmpty || vm.isLoading)
                         }
                         
                         Divider()
@@ -110,7 +100,7 @@ struct LiveSettingsView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .onChange(of: selectedMainArea) { newValue in
-                                    if !isLoadingInitialData {
+                                    if !vm.isLoadingInitialData {
                                         selectedSubArea = nil
                                     }
                                 }
@@ -153,16 +143,16 @@ struct LiveSettingsView: View {
                             
                             HStack(spacing: 12) {
                                 Button("更新分区") {
-                                    Task { await updateArea() }
+                                    Task { await updateAreaFromSelection() }
                                 }
                                 .buttonStyle(.bordered)
-                                .disabled(selectedSubArea == nil || isLoading)
+                                .disabled(selectedSubArea == nil || vm.isLoading)
                                 
                                 Button("刷新分区列表") {
-                                    Task { await refreshPartitions() }
+                                    Task { await vm.refreshPartitions() }
                                 }
                                 .buttonStyle(.bordered)
-                                .disabled(isLoading)
+                                .disabled(vm.isLoading)
                             }
                         }
                     }
@@ -229,11 +219,11 @@ struct LiveSettingsView: View {
                                 .cornerRadius(8)
                                 
                                 Button("开始直播") {
-                                    Task { await startLive() }
+                                    Task { await startLiveFromSelection() }
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .controlSize(.large)
-                                .disabled(liveTitle.isEmpty || selectedSubArea == nil || isLoading)
+                                .disabled(liveTitle.isEmpty || selectedSubArea == nil || vm.isLoading)
                             }
                         } else {
                             // 直播进行中区域
@@ -249,12 +239,12 @@ struct LiveSettingsView: View {
                                     .multilineTextAlignment(.center)
                                 
                                 Button("停止直播") {
-                                    Task { await stopLive() }
+                                    Task { await vm.stopLive() }
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.large)
                                 .foregroundColor(.red)
-                                .disabled(isLoading)
+                                .disabled(vm.isLoading)
                             }
                         }
                         
@@ -326,17 +316,17 @@ struct LiveSettingsView: View {
         .onAppear {
             setupInitialValues()
         }
-        .alert("操作成功", isPresented: $showSuccess) {
+        .alert("操作成功", isPresented: $vm.showSuccess) {
             Button("确定") { }
             } message: {
-                Text(successMessage)
+                Text(vm.successMessage)
             }
-            .alert(errorTitle, isPresented: $showError) {
+            .alert(vm.errorTitle, isPresented: $vm.showError) {
                 Button("确定") { }
             } message: {
-                Text(errorMessage)
+                Text(vm.errorMessage)
             }
-            .alert("开始直播成功", isPresented: $showNavigationConfirm) {
+            .alert("开始直播成功", isPresented: $vm.showNavigationConfirm) {
                 Button("取消", role: .cancel) { }
                 Button("确定") {
                     onNavigateToStreamInfo?()
@@ -345,7 +335,7 @@ struct LiveSettingsView: View {
                 Text("是否跳转到推流界面？")
             }
             .overlay {
-                if isLoading {
+                if vm.isLoading {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
                         .overlay(
@@ -358,7 +348,7 @@ struct LiveSettingsView: View {
                 }
             }
             .overlay {
-                if showFaceVerification {
+                if vm.showFaceVerification {
                     faceVerificationOverlay
                 }
             }
@@ -383,7 +373,7 @@ struct LiveSettingsView: View {
                         .foregroundColor(.secondary)
                     
                     // 二维码
-                    if let qrImage = faceVerificationQRImage {
+                    if let qrImage = vm.faceVerificationQRImage {
                         Image(nsImage: qrImage)
                             .resizable()
                             .scaledToFit()
@@ -402,9 +392,8 @@ struct LiveSettingsView: View {
                     
                     // 确认按钮
                     Button("确认") {
-                        showFaceVerification = false
-                        faceVerificationQRUrl = ""
-                        faceVerificationQRImage = nil
+                        vm.showFaceVerification = false
+                        vm.faceVerificationQRImage = nil
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
@@ -419,80 +408,37 @@ struct LiveSettingsView: View {
     
     // MARK: - 私有方法
     
-    private func handleAPIError(_ error: Error) {
-        // 检查是否是BilibiliAPIError
-        if let apiError = error as? BilibiliAPIError {
-            switch apiError {
-            case .authenticationRequired:
-                // Cookie失效
-                apiService.logout()
-                self.errorTitle = "操作失败"
-                self.errorMessage = "Cookie失效，请重新登录"
-                self.showError = true
-                
-            case .faceAuthRequired(let code, let qrURL, let message):
-                handleFaceVerification(code: code, qrURL: qrURL, message: message)
-                
-            case .apiError(let code, let message):
-                switch code {
-                case 3:
-                    apiService.logout()
-                    self.errorTitle = "操作失败"
-                    self.errorMessage = "Cookie失效，请重新登录"
-                    self.showError = true
-                default:
-                    // 其他API错误：标题带错误码，正文是 B站 原文
-                    let display = LiveErrorText.display(code: code, message: message)
-                    self.errorTitle = display.title
-                    self.errorMessage = display.message
-                    self.showError = true
-                }
-            default:
-                // 其他BilibiliAPIError类型
-                self.errorTitle = "操作失败"
-                self.errorMessage = error.localizedDescription
-                self.showError = true
-            }
-        } else {
-            // 其他类型的错误
-            self.errorTitle = "操作失败"
-            self.errorMessage = error.localizedDescription
-            self.showError = true
-        }
-    }
     
-    private func handleFaceVerification(code: Int, qrURL: String?, message: String) {
-        if let qrURL, !qrURL.isEmpty {
-            self.faceVerificationQRUrl = qrURL
-            self.faceVerificationQRImage = QRCodeGenerator.image(from: qrURL)
-            self.showFaceVerification = true
-        } else {
-            // B站 没给可用的认证链接，就把它的原话和错误码原样给用户
-            let display = LiveErrorText.display(code: code, message: message)
-            self.errorTitle = display.title
-            self.errorMessage = display.message
-            self.showError = true
-        }
-    }
     
     
     private func setupInitialValues() {
-        // 设置默认值
         if !apiService.partitions.isEmpty && selectedMainArea == nil {
             selectedMainArea = apiService.partitions.first
         }
         
-        // 如果已经有直播间信息，先显示出来
         if let liveInfo = apiService.liveInfo {
             updateUIWithLiveInfo(liveInfo)
         }
         
-        // 只有在首次登录且未加载过直播间信息时才自动获取
+        // 首次登录且未加载过时才自动拉一次
         if !apiService.hasLoadedInitialLiveInfo {
-            Task {
-                await loadCurrentLiveInfo()
-            }
+            Task { await reloadLiveInfo() }
         }
+    }
+    
+    private func reloadLiveInfo() async {
+        guard let info = await vm.loadInitialLiveInfo() else { return }
+        updateUIWithLiveInfo(info)
+    }
+    
+    private func updateAreaFromSelection() async {
+        guard let areaId = selectedSubArea?.id else { return }
+        await vm.updateArea(areaId: areaId)
+    }
+    
+    private func startLiveFromSelection() async {
+        guard let areaId = selectedSubArea?.id else { return }
+        await vm.startLive(title: liveTitle, areaId: areaId)
     }
     
     private func updateUIWithLiveInfo(_ liveInfo: LiveInfo) {
@@ -526,158 +472,11 @@ struct LiveSettingsView: View {
         }
     }
     
-    private func loadCurrentLiveInfo() async {
-        do {
-            await MainActor.run {
-                self.isLoadingInitialData = true
-            }
-            
-            // 确保分区信息已加载
-            if apiService.partitions.isEmpty {
-                try await apiService.getPartitions()
-            }
-            
-            let liveInfo = try await apiService.getLiveRoomInfo()
-            await MainActor.run {
-                self.updateUIWithLiveInfo(liveInfo)
-                self.isLoadingInitialData = false
-            }
-        } catch {
-            await MainActor.run {
-                self.isLoadingInitialData = false
-                handleAPIError(error)
-            }
-        }
-    }
     
-    private func updateTitle() async {
-        isLoading = true
-        
-        do {
-            try await apiService.updateLiveTitle(liveTitle)
-            await MainActor.run {
-                // 更新保存的直播间信息
-                if var currentLiveInfo = apiService.liveInfo {
-                    currentLiveInfo = LiveInfo(
-                        roomId: currentLiveInfo.roomId,
-                        title: self.liveTitle, // 使用新的标题
-                        areaId: currentLiveInfo.areaId,
-                        areaName: currentLiveInfo.areaName,
-                        parentAreaId: currentLiveInfo.parentAreaId,
-                        parentAreaName: currentLiveInfo.parentAreaName,
-                        liveStatus: currentLiveInfo.liveStatus
-                    )
-                    apiService.liveInfo = currentLiveInfo
-                }
-                
-                self.successMessage = "直播标题更新成功"
-                self.showSuccess = true
-            }
-        } catch {
-            await MainActor.run {
-                handleAPIError(error)
-            }
-        }
-        
-        isLoading = false
-    }
     
-    private func updateArea() async {
-        guard let subArea = selectedSubArea,
-              let mainArea = selectedMainArea else { return }
-        
-        isLoading = true
-        
-        do {
-            try await apiService.updateLiveArea(subArea.id)
-            await MainActor.run {
-                // 更新保存的直播间信息
-                if var currentLiveInfo = apiService.liveInfo {
-                    currentLiveInfo = LiveInfo(
-                        roomId: currentLiveInfo.roomId,
-                        title: currentLiveInfo.title,
-                        areaId: subArea.id, // 使用新的子分区ID
-                        areaName: subArea.name, // 使用新的子分区名称
-                        parentAreaId: mainArea.id, // 使用新的主分区ID
-                        parentAreaName: mainArea.name, // 使用新的主分区名称
-                        liveStatus: currentLiveInfo.liveStatus
-                    )
-                    apiService.liveInfo = currentLiveInfo
-                }
-                
-                self.successMessage = "直播分区更新成功"
-                self.showSuccess = true
-            }
-        } catch {
-            await MainActor.run {
-                handleAPIError(error)
-            }
-        }
-        
-        isLoading = false
-    }
     
-    private func refreshPartitions() async {
-        isLoading = true
-        
-        do {
-            try await apiService.getPartitions()
-            await MainActor.run {
-                self.successMessage = "分区列表刷新成功"
-                self.showSuccess = true
-            }
-        } catch {
-            await MainActor.run {
-                handleAPIError(error)
-            }
-        }
-        
-        isLoading = false
-    }
     
-    private func startLive() async {
-        guard let subArea = selectedSubArea else { return }
-        
-        isLoading = true
-        
-        // 标题是附带操作，与参考项目一致：失败只记日志，不阻塞开播
-        do {
-            try await apiService.updateLiveTitle(liveTitle)
-        } catch {
-            AppLog.live.warning("开播前更新标题失败，继续开播: \(error.localizedDescription, privacy: .public)")
-        }
-        
-        do {
-            let _ = try await apiService.startLive(areaId: subArea.id)
-            await MainActor.run {
-                self.showNavigationConfirm = true
-            }
-        } catch {
-            await MainActor.run {
-                handleAPIError(error)
-            }
-        }
-        
-        isLoading = false
-    }
     
-    private func stopLive() async {
-        isLoading = true
-        
-        do {
-            try await apiService.stopLive()
-            await MainActor.run {
-                self.successMessage = "直播已停止"
-                self.showSuccess = true
-            }
-        } catch {
-            await MainActor.run {
-                handleAPIError(error)
-            }
-        }
-        
-        isLoading = false
-    }
     
     private func openLiveRoom() {
         guard let userInfo = apiService.userInfo else { return }
