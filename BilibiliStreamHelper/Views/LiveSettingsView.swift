@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 import AppKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
@@ -667,8 +668,15 @@ struct LiveSettingsView: View {
         
         isLoading = true
         
+        // 标题是附带操作，与参考项目一致：失败只记日志，不阻塞开播
         do {
-            let _ = try await apiService.startLive(title: liveTitle, areaId: subArea.id)
+            try await apiService.updateLiveTitle(liveTitle)
+        } catch {
+            AppLog.live.warning("开播前更新标题失败，继续开播: \(error.localizedDescription, privacy: .public)")
+        }
+        
+        do {
+            let _ = try await apiService.startLive(areaId: subArea.id)
             await MainActor.run {
                 self.showNavigationConfirm = true
             }

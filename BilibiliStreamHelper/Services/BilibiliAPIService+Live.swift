@@ -56,7 +56,7 @@ extension BilibiliAPIService {
     }
 
     
-    func startLive(title: String, areaId: Int) async throws -> StreamInfo {
+    func startLive(areaId: Int) async throws -> StreamInfo {
         guard !roomId.isEmpty, !csrfToken.isEmpty else {
             throw BilibiliAPIError.authenticationRequired
         }
@@ -93,26 +93,7 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.apiError(versionJson["code"].intValue, versionJson["message"].stringValue)
         }
         
-        // 3. 设置直播标题
-        var titleData = BilibiliConstants.titleData
-        titleData["room_id"] = roomId
-        titleData["csrf_token"] = csrfToken
-        titleData["csrf"] = csrfToken
-        titleData["title"] = title
-        
-        let titleResponse = try await requestAPI(
-            url: "https://api.live.bilibili.com/room/v1/Room/update",
-            method: .POST,
-            headers: BilibiliConstants.header,
-            data: titleData,
-            cookies: cookies
-        )
-        
-        guard titleResponse["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(titleResponse["code"].intValue, titleResponse["message"].stringValue)
-        }
-        
-        // 4. 开始直播
+        // 3. 开始直播
         var startData = BilibiliConstants.startData
         startData["room_id"] = roomId
         startData["csrf_token"] = csrfToken
@@ -202,31 +183,6 @@ extension BilibiliAPIService {
         await MainActor.run {
             self.streamInfo = nil
             self.isLiveActive = false
-        }
-    }
-
-    
-    func updateTitle(_ title: String) async throws {
-        guard !roomId.isEmpty, !csrfToken.isEmpty else {
-            throw BilibiliAPIError.authenticationRequired
-        }
-        
-        var titleData = BilibiliConstants.titleData
-        titleData["room_id"] = roomId
-        titleData["csrf_token"] = csrfToken
-        titleData["csrf"] = csrfToken
-        titleData["title"] = title
-        
-        let response = try await requestAPI(
-            url: "https://api.live.bilibili.com/room/v1/Room/update",
-            method: .POST,
-            headers: BilibiliConstants.header,
-            data: titleData,
-            cookies: cookies
-        )
-        
-        guard response["code"].intValue == 0 else {
-            throw BilibiliAPIError.apiError(response["code"].intValue, response["message"].stringValue)
         }
     }
 

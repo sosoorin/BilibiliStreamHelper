@@ -10,20 +10,15 @@ import Foundation
 // MARK: - Constants and Data Structures
 
 struct BilibiliConstants {
-    static let userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+    /// 与参考项目（ChaceQC/bilibili_live_stream_code）保持一致：
+    /// 只报 UA，不伪造 sec-ch-ua / sec-fetch 这类客户端提示，
+    /// 避免出现「macOS 应用自称 Windows Edge 129」这种自相矛盾的指纹。
+    static let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     
     static let header: [String: String] = [
         "accept": "application/json, text/plain, */*",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "accept-language": "zh-CN,zh;q=0.9",
         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "origin": "https://link.bilibili.com",
-        "referer": "https://link.bilibili.com/p/center/index",
-        "sec-ch-ua": "\"Microsoft Edge\";v=\"129\", \"Not=A?Brand\";v=\"8\", \"Chromium\";v=\"129\"",
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": "\"Windows\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-site",
         "user-agent": userAgent
     ]
     
