@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-04
+
+### ✨ 改进
+- 分区下拉里给受限分区标注「需权限」（团播 / 男声电台 / 虚拟男V / 时政 / 游戏赛事），
+  这几个分区需要额外资质，选了也开不了，现在能提前看出来
+
+### 🐛 修复
+- 开播前修改标题失败不再阻塞开播：标题是附带操作，失败只记日志
+
+### 🔧 内部
+- 代码按 Models / Services / ViewModels / Views 分层重构，业务逻辑从视图移出
+- 网络日志统一走 os.Logger，并对推流码、Cookie、CSRF 等敏感字段脱敏
+- 补上单元测试 target 与 13 个用例，接入 CI
+
 ### 🔧 构建
 - CI 切换到 Xcode 27 runner 镜像（`xcode-27`），删除多余的 setup-xcode 步骤
 - GitHub Actions 全部升级到 Node 24 运行时版本

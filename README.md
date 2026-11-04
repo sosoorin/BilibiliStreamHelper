@@ -4,7 +4,7 @@
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
 ![Platform](https://img.shields.io/badge/macOS-13.0+-green)
 ![License](https://img.shields.io/badge/License-Apache%202.0-red)
-![Version](https://img.shields.io/badge/Version-v1.1.1-brightgreen)
+![Version](https://img.shields.io/badge/Version-v1.1.2-brightgreen)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 
 使用 Swift 6 + SwiftUI 开发的哔哩哔哩直播推流码获取工具。
