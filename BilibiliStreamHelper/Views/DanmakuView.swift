@@ -15,15 +15,8 @@ struct DanmakuView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // 发送弹幕卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "message.circle")
-                            .foregroundColor(.blue)
-                        Text("发送弹幕")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
+                SectionCard(icon: "message.circle", title: "发送弹幕", accent: .blue) {
+
                         if !apiService.isLoggedIn {
                             HStack(spacing: 4) {
                                 Circle()
@@ -43,11 +36,7 @@ struct DanmakuView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.blue.opacity(0.1))
-                    
+                } content: {
                     // 卡片内容
                     VStack(spacing: 16) {
                         HStack(spacing: 12) {
@@ -98,23 +87,11 @@ struct DanmakuView: View {
                             .cornerRadius(8)
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                 
                 // 弹幕历史记录卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .foregroundColor(.purple)
-                        Text("弹幕历史")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
+                SectionCard(icon: "clock.arrow.circlepath", title: "弹幕历史", accent: .purple) {
+
                         if !vm.danmakuHistory.isEmpty {
                             Button("清空历史") {
                                 vm.danmakuHistory.removeAll()
@@ -122,11 +99,7 @@ struct DanmakuView: View {
                             .font(.caption)
                             .foregroundColor(.red)
                         }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.purple.opacity(0.1))
-                    
+                } content: {
                     // 卡片内容
                     VStack(spacing: 16) {
                         if vm.danmakuHistory.isEmpty {
@@ -158,28 +131,11 @@ struct DanmakuView: View {
                             .frame(maxHeight: 300)
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                 
                 // 快捷弹幕卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "bolt.circle")
-                            .foregroundColor(.orange)
-                        Text("快捷弹幕")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.orange.opacity(0.1))
-                    
+                SectionCard(icon: "bolt.circle", title: "快捷弹幕", accent: .orange) {
+                } content: {
                     // 卡片内容
                     VStack(spacing: 16) {
                         LazyVGrid(columns: [
@@ -197,12 +153,7 @@ struct DanmakuView: View {
                             }
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             }
             .padding(16)
         }
