@@ -48,9 +48,9 @@ struct SectionCard<Content: View, Trailing: View>: View {
             .padding(.vertical, 12)
             .background(accent.opacity(0.1))
             
+            // 内容区不再重复铺背景：外层整卡已经是同一个颜色
             content()
                 .padding(16)
-                .background(Color(NSColor.windowBackgroundColor))
         }
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)

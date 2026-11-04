@@ -19,15 +19,11 @@ struct StreamInfoView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // 推流状态卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "stop.circle")
-                            .foregroundColor(apiService.isLiveActive ? .green : .gray)
-                        Text("推流状态")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
+                SectionCard(
+                    icon: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "stop.circle",
+                    title: "推流状态",
+                    accent: apiService.isLiveActive ? .green : .gray
+                ) {
                         if apiService.isLiveActive {
                             HStack(spacing: 4) {
                                 Circle()
@@ -38,12 +34,7 @@ struct StreamInfoView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background((apiService.isLiveActive ? Color.green : Color.gray).opacity(0.1))
-                    
-                    // 卡片内容
+                } content: {
                     VStack(spacing: 16) {
                         // 推流状态指示器
                         VStack(spacing: 15) {
@@ -62,36 +53,18 @@ struct StreamInfoView: View {
                                 .foregroundColor(apiService.isLiveActive ? .green : .secondary)
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                     
                 if let streamInfo = apiService.streamInfo {
                     // 推流信息卡片
-                    VStack(spacing: 0) {
-                        // 卡片标题
-                        HStack {
-                            Image(systemName: "server.rack")
-                                .foregroundColor(.blue)
-                            Text("推流信息")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            Spacer()
-                            Button("复制全部") {
-                                copyAllInfo()
-                            }
-                            .font(.caption)
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
+                    SectionCard(icon: "server.rack", title: "推流信息", accent: .blue) {
+                        Button("复制全部") {
+                            copyAllInfo()
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(Color.blue.opacity(0.1))
-                        
-                        // 卡片内容
+                        .font(.caption)
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    } content: {
                         VStack(spacing: 20) {
                             // 服务器地址
                             VStack(alignment: .leading, spacing: 8) {
@@ -167,30 +140,12 @@ struct StreamInfoView: View {
                                 Spacer()
                             }
                         }
-                        .padding(16)
-                        .background(Color(NSColor.windowBackgroundColor))
                     }
-                    .background(Color(NSColor.windowBackgroundColor))
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                         
                 } else {
                     // 无推流信息时的提示卡片
-                    VStack(spacing: 0) {
-                        // 卡片标题
-                        HStack {
-                            Image(systemName: "info.circle")
-                                .foregroundColor(.orange)
-                            Text("获取推流信息")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(Color.orange.opacity(0.1))
-                        
-                        // 卡片内容
+                    SectionCard(icon: "info.circle", title: "获取推流信息", accent: .orange) {
+                    } content: {
                         VStack(spacing: 20) {
                             VStack(spacing: 15) {
                                 Image(systemName: "tv.slash")
@@ -223,30 +178,12 @@ struct StreamInfoView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(16)
-                        .background(Color(NSColor.windowBackgroundColor))
                     }
-                    .background(Color(NSColor.windowBackgroundColor))
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                 }
                     
                 // OBS 使用说明卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "desktopcomputer")
-                            .foregroundColor(.green)
-                        Text("OBS 设置说明")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.green.opacity(0.1))
-                    
-                    // 卡片内容
+                SectionCard(icon: "desktopcomputer", title: "OBS 设置说明", accent: .green) {
+                } content: {
                     VStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
                             InstructionRow(step: "1", text: "打开 OBS Studio")
@@ -257,12 +194,7 @@ struct StreamInfoView: View {
                             InstructionRow(step: "6", text: "点击\"应用\"后即可开始推流")
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             }
             .padding(16)
         }

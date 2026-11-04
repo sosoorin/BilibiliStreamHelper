@@ -25,26 +25,13 @@ struct LiveSettingsView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // 基础设置卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "gear")
-                            .foregroundColor(.blue)
-                        Text("基础设置")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
-                        Button("刷新信息") {
-                            Task { await reloadLiveInfo() }
-                        }
-                        .font(.caption)
-                        .disabled(vm.isLoading)
+                SectionCard(icon: "gear", title: "基础设置", accent: .blue) {
+                    Button("刷新信息") {
+                        Task { await reloadLiveInfo() }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.blue.opacity(0.1))
-                    
-                    // 卡片内容
+                    .font(.caption)
+                    .disabled(vm.isLoading)
+                } content: {
                     VStack(spacing: 16) {
                         // 直播标题
                         VStack(alignment: .leading, spacing: 8) {
@@ -157,23 +144,14 @@ struct LiveSettingsView: View {
                             }
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                 
                 // 直播控制卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "play.circle")
-                            .foregroundColor(apiService.isLiveActive ? .green : .orange)
-                        Text("直播控制")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
+                SectionCard(
+                    icon: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "play.circle",
+                    title: "直播控制",
+                    accent: apiService.isLiveActive ? .green : .orange
+                ) {
                         if apiService.isLiveActive {
                             HStack(spacing: 4) {
                                 Circle()
@@ -184,12 +162,7 @@ struct LiveSettingsView: View {
                                     .foregroundColor(.green)
                             }
                         }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background((apiService.isLiveActive ? Color.green : Color.orange).opacity(0.1))
-                    
-                    // 卡片内容
+                } content: {
                     VStack(spacing: 16) {
                         if !apiService.isLiveActive {
                             // 开始直播区域
@@ -267,29 +240,11 @@ struct LiveSettingsView: View {
                             .buttonStyle(.bordered)
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                 
                 // 使用说明卡片
-                VStack(spacing: 0) {
-                    // 卡片标题
-                    HStack {
-                        Image(systemName: "questionmark.circle")
-                            .foregroundColor(.purple)
-                        Text("使用说明")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.purple.opacity(0.1))
-                    
-                    // 卡片内容
+                SectionCard(icon: "questionmark.circle", title: "使用说明", accent: .purple) {
+                } content: {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("直播流程")
                             .font(.subheadline)
@@ -304,12 +259,7 @@ struct LiveSettingsView: View {
                             StepView(number: "6", title: "结束直播", description: "直播结束后记得停止直播")
                         }
                     }
-                    .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor))
                 }
-                .background(Color(NSColor.windowBackgroundColor))
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             }
             .padding(16)
         }
