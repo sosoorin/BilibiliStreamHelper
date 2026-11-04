@@ -144,6 +144,11 @@ struct LiveSettingsView: View {
                     }
                 }
                 
+                // 开播后在这里插入推流信息（原来「直播状态」卡片的位置）
+                if apiService.isLiveActive {
+                    StreamInfoView()
+                }
+                
                 // 使用说明卡片
                 SectionCard(icon: "questionmark.circle", title: "使用说明", accent: .purple) {
                 } content: {

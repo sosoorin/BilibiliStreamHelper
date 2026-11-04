@@ -10,8 +10,7 @@ import SwiftUI
 /// 「直播」页。
 ///
 /// 原来是侧边栏里的两项，但它们是同一条流程的两个阶段，所以合成一页：
-/// 页头常驻开播/停播，下面按状态排内容——开播后推流信息在最上面，
-/// 设置永远在下面，随时能改标题和分区。
+/// 页头常驻开播/停播，内容区固定是「基础信息 → 推流信息（开播后）→ 使用说明」。
 struct LivePageView: View {
     
     @StateObject private var apiService = APIClient.shared
@@ -23,14 +22,8 @@ struct LivePageView: View {
             actionBar
             
             ScrollView {
-                VStack(spacing: 24) {
-                    // 开播后推流信息在最上面——那是这一刻唯一要做的事
-                    if apiService.isLiveActive {
-                        StreamInfoView()
-                    }
-                    LiveSettingsView(vm: vm)
-                }
-                .padding(16)
+                LiveSettingsView(vm: vm)
+                    .padding(16)
             }
             .background(Color(NSColor.controlBackgroundColor))
         }
