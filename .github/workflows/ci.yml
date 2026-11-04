@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME: BilibiliStreamHelper
+  SCHEME_NAME: BilibiliStreamHelper
+
+jobs:
+  build-and-test:
+    runs-on: xcode-27
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Show toolchain
+      run: |
+        xcodebuild -version
+        swift --version
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v6
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
+    - name: Resolve Swift packages
+      run: |
+        xcodebuild -resolvePackageDependencies -project ${{ env.APP_NAME }}.xcodeproj -scheme ${{ env.SCHEME_NAME }}
+
+    - name: Build (Release)
+      run: |
+        xcodebuild build \
+          -project ${{ env.APP_NAME }}.xcodeproj \
+          -scheme ${{ env.SCHEME_NAME }} \
+          -configuration Release \
+          -destination "platform=macOS" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Run unit tests
+      run: |
+        set -o pipefail
+        xcodebuild test \
+          -project ${{ env.APP_NAME }}.xcodeproj \
+          -scheme ${{ env.SCHEME_NAME }} \
+          -destination "platform=macOS" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          2>&1 | tee "${{ runner.temp }}/test.log"
+
+    - name: Upload test log on failure
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-log
+        path: ${{ runner.temp }}/test.log
+        if-no-files-found: ignore
