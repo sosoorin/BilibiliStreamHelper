@@ -100,9 +100,20 @@ final class LiveSettingsViewModel: ObservableObject {
     
     // MARK: - 操作
     
-    func refreshPartitions() async {
-        await perform(success: "分区列表刷新成功") {
-            try await api.getPartitions()
+    /// 一次刷新：分区列表 + 房间信息，并把结果回填到表单。
+    /// 分区会增删，房间信息可能在别处（手机端）改过，分开刷容易只刷到一半。
+    func refreshAll() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            _ = try await api.getPartitions()
+            let info = try await api.getLiveRoomInfo()
+            applyLiveInfo(info)
+            successMessage = "已刷新"
+            showSuccess = true
+        } catch {
+            present(error)
         }
     }
     

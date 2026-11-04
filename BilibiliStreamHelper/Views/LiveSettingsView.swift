@@ -23,8 +23,8 @@ struct LiveSettingsView: View {
             VStack(spacing: 24) {
                 // 基础设置卡片
                 SectionCard(icon: "gear", title: "基础设置", accent: .blue) {
-                    Button("刷新信息") {
-                        Task { await reloadLiveInfo() }
+                    Button("刷新") {
+                        Task { await vm.refreshAll() }
                     }
                     .font(.caption)
                     .disabled(vm.isLoading)
@@ -137,12 +137,6 @@ struct LiveSettingsView: View {
                                 }
                                 .buttonStyle(.bordered)
                                 .disabled(vm.selectedSubArea == nil || vm.isLoading)
-                                
-                                Button("刷新分区列表") {
-                                    Task { await vm.refreshPartitions() }
-                                }
-                                .buttonStyle(.bordered)
-                                .disabled(vm.isLoading)
                             }
                         }
                     }
@@ -328,10 +322,6 @@ struct LiveSettingsView: View {
         }
     }
     
-    private func reloadLiveInfo() async {
-        guard let info = await vm.loadInitialLiveInfo() else { return }
-        vm.applyLiveInfo(info)
-    }
     
     private func openLiveRoom() {
         guard let userInfo = apiService.userInfo else { return }
