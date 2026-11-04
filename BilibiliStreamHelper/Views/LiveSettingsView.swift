@@ -277,14 +277,6 @@ struct LiveSettingsView: View {
             } message: {
                 Text(vm.errorMessage)
             }
-            .alert("开始直播成功", isPresented: $vm.showNavigationConfirm) {
-                Button("取消", role: .cancel) { }
-                Button("确定") {
-                    onNavigateToStreamInfo?()
-                }
-            } message: {
-                Text("是否跳转到推流界面？")
-            }
             .overlay {
                 if vm.isLoading {
                     Color.black.opacity(0.3)

@@ -10,16 +10,14 @@ import AppKit
 
 // MARK: - 侧边栏菜单项
 enum SidebarItem: String, CaseIterable, Identifiable {
-    case liveSettings = "直播设置"
-    case streamInfo = "推流信息"
-    case danmaku = "弹幕发送"
+    case live = "直播"
+    case danmaku = "弹幕"
     
     var id: String { rawValue }
     
     var icon: String {
         switch self {
-        case .liveSettings: return "tv"
-        case .streamInfo: return "dot.radiowaves.left.and.right"
+        case .live: return "tv"
         case .danmaku: return "message"
         }
     }
@@ -28,7 +26,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 struct MainView: View {
     @StateObject private var apiService = APIClient.shared
     @StateObject private var vm = MainViewModel()
-    @State private var selectedItem: SidebarItem = .liveSettings
+    @State private var selectedItem: SidebarItem = .live
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     
     var body: some View {
@@ -246,12 +244,8 @@ struct DetailView: View {
     var body: some View {
         Group {
             switch selectedItem {
-            case .liveSettings:
-                LiveSettingsView(onNavigateToStreamInfo: {
-                    selectedSidebarItem = .streamInfo
-                })
-            case .streamInfo:
-                StreamInfoView()
+            case .live:
+                LivePageView()
             case .danmaku:
                 DanmakuView()
             }
