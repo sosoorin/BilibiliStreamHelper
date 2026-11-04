@@ -429,18 +429,18 @@ struct LiveSettingsView: View {
                 self.errorMessage = "Cookie失效，请重新登录"
                 self.showError = true
                 
+            case .faceAuthRequired(let code, let qrURL, let message):
+                handleFaceVerification(code: code, qrURL: qrURL, message: message)
+                
             case .apiError(let code, let message):
                 switch code {
-                case 60024, 60043:
-                    // 需要人脸认证（60024 接口给链接，60043 客户端自己拼）
-                    handleFaceVerificationError(message)
                 case 3:
                     apiService.logout()
                     self.errorTitle = "操作失败"
                     self.errorMessage = "Cookie失效，请重新登录"
                     self.showError = true
                 default:
-                    // 其他API错误：标题带错误码，正文给建议 + B站 原话
+                    // 其他API错误：标题带错误码，正文是 B站 原文
                     let display = BilibiliLiveErrorText.display(code: code, message: message)
                     self.errorTitle = display.title
                     self.errorMessage = display.message
@@ -460,28 +460,16 @@ struct LiveSettingsView: View {
         }
     }
     
-    private func handleFaceVerificationError(_ message: String) {
-        // 从错误消息中提取二维码URL
-        // 根据BilibiliAPI.swift中的逻辑，消息格式是"需要进行人脸认证: URL"
-        var qrUrl = ""
-        
-        // 从消息中提取URL
-        if message.contains("需要进行人脸认证: ") {
-            let components = message.components(separatedBy: "需要进行人脸认证: ")
-            if components.count > 1 {
-                qrUrl = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-        }
-        
-        if !qrUrl.isEmpty {
-            // 保存二维码URL并生成二维码图片
-            self.faceVerificationQRUrl = qrUrl
-            self.generateQRCodeImage(from: qrUrl)
+    private func handleFaceVerification(code: Int, qrURL: String?, message: String) {
+        if let qrURL, !qrURL.isEmpty {
+            self.faceVerificationQRUrl = qrURL
+            self.generateQRCodeImage(from: qrURL)
             self.showFaceVerification = true
         } else {
-            // 没有二维码URL的情况，只显示提示
-            self.errorTitle = "需要人脸认证"
-            self.errorMessage = "本次开播需要在手机客户端完成人脸认证后再试。"
+            // B站 没给可用的认证链接，就把它的原话和错误码原样给用户
+            let display = BilibiliLiveErrorText.display(code: code, message: message)
+            self.errorTitle = display.title
+            self.errorMessage = display.message
             self.showError = true
         }
     }

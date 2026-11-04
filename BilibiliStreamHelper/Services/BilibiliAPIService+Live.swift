@@ -132,17 +132,27 @@ extension BilibiliAPIService {
             cookies: cookies
         )
         
-        if startResponse["code"].intValue == 60024 {
+        let startCode = startResponse["code"].intValue
+        
+        if startCode == 60024 {
             // 需要人脸认证，接口直接给出认证链接
             let qrUrl = startResponse["data"]["qr"].stringValue
-            throw BilibiliAPIError.apiError(60024, "需要进行人脸认证: \(qrUrl)")
+            throw BilibiliAPIError.faceAuthRequired(
+                code: 60024,
+                qrURL: qrUrl.isEmpty ? nil : qrUrl,
+                message: startResponse["message"].stringValue
+            )
         }
         
-        if startResponse["code"].intValue == 60043 {
+        if startCode == 60043 {
             // 需要人脸认证，但接口不返回 qr，由客户端自行拼接认证中间页
             let mid = userInfo?.mid ?? 0
             let qrUrl = "https://www.bilibili.com/blackboard/live/face-auth-middle.html?source_event=400&mid=\(mid)"
-            throw BilibiliAPIError.apiError(60043, "需要进行人脸认证: \(qrUrl)")
+            throw BilibiliAPIError.faceAuthRequired(
+                code: 60043,
+                qrURL: mid == 0 ? nil : qrUrl,
+                message: startResponse["message"].stringValue
+            )
         }
         
         guard startResponse["code"].intValue == 0 else {
