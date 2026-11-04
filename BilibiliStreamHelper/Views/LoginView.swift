@@ -53,6 +53,8 @@ struct LoginView: View {
         }
         .padding()
         .onAppear {
+            // 测试宿主里不要启动登录流程：会发真实网络请求
+            guard !AppEnvironment.isRunningTests else { return }
             // 是否真的需要拉二维码，由 ViewModel 自己判断
             Task { await vm.generateQRCode() }
         }

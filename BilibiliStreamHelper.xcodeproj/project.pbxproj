@@ -10,7 +10,18 @@
 		71565E112E8286AE004F6104 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 71565E102E8286AE004F6104 /* SwiftyJSON */; };
 		71AFBE742E83B06F00585F25 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 71AFBE732E83B06F00585F25 /* README.md */; };
 		71AFBEC02E83B58700585F25 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 71AFBEBF2E83B58700585F25 /* LICENSE */; };
+		A1B2C3D4000000000000000C /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 71565E102E8286AE004F6104 /* SwiftyJSON */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1B2C3D40000000000000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 71565CCE2E8277DE004F6104 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 71565CD52E8277DE004F6104;
+			remoteInfo = BilibiliStreamHelper;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		71565CD62E8277DE004F6104 /* BilibiliStreamHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BilibiliStreamHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -45,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4000000000000000C /* SwiftyJSON in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,11 +128,15 @@
 			buildRules = (
 			);
 			dependencies = (
+				A1B2C3D40000000000000007 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A1B2C3D40000000000000002 /* BilibiliStreamHelperTests */,
 			);
 			name = BilibiliStreamHelperTests;
+			packageProductDependencies = (
+				71565E102E8286AE004F6104 /* SwiftyJSON */,
+			);
 			productName = BilibiliStreamHelperTests;
 			productReference = A1B2C3D40000000000000001 /* BilibiliStreamHelperTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -198,6 +214,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1B2C3D40000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 71565CD52E8277DE004F6104 /* BilibiliStreamHelper */;
+			targetProxy = A1B2C3D40000000000000008 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		71565CDF2E8277DE004F6104 /* Debug */ = {

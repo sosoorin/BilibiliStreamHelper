@@ -39,6 +39,9 @@ class SecureStorage {
     }
     
     static func loadFromKeychain() -> (cookies: String, csrf: String)? {
+        // 测试宿主里不读钥匙串：ad-hoc 签名每次都变，系统会弹窗要密码
+        guard !AppEnvironment.isRunningTests else { return nil }
+        
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
