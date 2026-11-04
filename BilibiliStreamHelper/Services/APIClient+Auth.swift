@@ -108,11 +108,6 @@ extension APIClient {
     }
 
     
-    private func validateLogin() async throws {
-        // 验证登录状态，尝试获取用户信息
-        try await getUserInfo()
-    }
-
     
     func getSavedLoginInfo() -> (roomId: String, cookies: String, csrf: String)? {
         guard let loginInfo = SecureStorage.loadLoginInfo() else {
@@ -216,7 +211,7 @@ extension APIClient {
         // 检查登录状态
         if statusCode == 0 {
             // 登录成功，保存cookies
-            print("登录成功，开始保存Cookies")
+            AppLog.auth.debug("登录成功，开始保存Cookies")
             await saveCookies(from: httpResponse)
             return true
         } else if statusCode == 86038 {
@@ -227,7 +222,7 @@ extension APIClient {
             throw BilibiliAPIError.qrCodeScanned
         } else {
             // 其他状态，继续等待
-            print("等待扫描，状态码: \(statusCode)")
+            AppLog.auth.debug("等待扫描，状态码: \(statusCode, privacy: .public)")
             return false
         }
     }
@@ -259,7 +254,7 @@ extension APIClient {
         do {
             let userInfo = try await getUserInfo()
             let userStats = try await getUserStats()
-            print("用户信息获取成功，登录验证通过")
+            AppLog.auth.debug("用户信息获取成功，登录验证通过")
             
             // 构建cookie字符串
             let cookieString = self.cookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
@@ -290,18 +285,18 @@ extension APIClient {
             self.isLoggedIn = true
             self.userInfo = userInfo
             
-            print("登录信息已保存到安全存储，房间ID: \(roomId)")
+            AppLog.auth.debug("登录信息已保存到安全存储，房间ID: \(roomId, privacy: .public)")
             
         } catch BilibiliAPIError.authenticationRequired {
-            print("Cookie验证失败，用户未登录")
+            AppLog.auth.debug("Cookie验证失败，用户未登录")
             self.isLoggedIn = false
             self.cookies.removeAll()
         } catch {
-            print("用户信息获取失败: \(error)")
+            AppLog.auth.debug("用户信息获取失败: \(error, privacy: .public)")
             // 其他错误，仍然认为是登录状态（可能是网络问题）
             if !cookies.isEmpty {
                 self.isLoggedIn = true
-                print("Cookie存在，暂时设置为登录状态")
+                AppLog.auth.debug("Cookie存在，暂时设置为登录状态")
             }
         }
     }

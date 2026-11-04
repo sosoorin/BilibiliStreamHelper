@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 import AppKit
 
 struct StreamInfoView: View {
@@ -306,17 +307,15 @@ struct StreamInfoView: View {
         pasteboard.clearContents()
         
         // 添加调试信息
-        print("尝试复制文本: \(text)")
-        print("文本长度: \(text.count)")
         
         _ = pasteboard.setString(text, forType: .string)
         
         // 验证复制是否成功
         if let copiedText = pasteboard.string(forType: .string) {
-            print("验证复制成功，获取到的文本: \(copiedText)")
+            AppLog.live.debug("验证复制成功，获取到的文本: \(copiedText, privacy: .public)")
             showToast("\(type)已复制")
         } else {
-            print("复制验证失败")
+            AppLog.live.debug("复制验证失败")
             vm.errorMessage = "复制失败，请检查系统权限或重试"
             vm.showError = true
         }
@@ -340,10 +339,10 @@ struct StreamInfoView: View {
         
         // 验证复制是否成功
         if let copiedText = pasteboard.string(forType: .string) {
-            print("完整信息复制成功，长度: \(copiedText.count)")
+            AppLog.live.debug("完整信息复制成功，长度: \(copiedText.count, privacy: .public)")
             showToast("完整推流信息已复制")
         } else {
-            print("完整信息复制失败")
+            AppLog.live.debug("完整信息复制失败")
             DispatchQueue.main.async {
                 self.vm.errorMessage = "复制失败，请检查系统权限或重试"
                 self.vm.showError = true

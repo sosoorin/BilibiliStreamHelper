@@ -26,6 +26,8 @@ struct LivePartition: Codable, Hashable, Equatable {
 struct LiveSubPartition: Codable, Hashable, Equatable {
     let id: Int
     let name: String
+    /// 该分区被锁定，通常需要额外资质，开播会失败
+    var isLocked: Bool = false
 }
 
 struct LiveInfo: Codable {

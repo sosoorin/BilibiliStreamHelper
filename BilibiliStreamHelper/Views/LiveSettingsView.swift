@@ -116,7 +116,8 @@ struct LiveSettingsView: View {
                                         Picker("子分区", selection: $selectedSubArea) {
                                             Text("请选择子分区").tag(nil as LiveSubPartition?)
                                             ForEach(subAreas, id: \.id) { subArea in
-                                                Text(subArea.name).tag(subArea as LiveSubPartition?)
+                                                Text(subArea.isLocked ? "\(subArea.name)（需权限）" : subArea.name)
+                                                    .tag(subArea as LiveSubPartition?)
                                             }
                                         }
                                         .labelsHidden()
@@ -455,20 +456,9 @@ struct LiveSettingsView: View {
             // 使用DispatchQueue.main.async确保子分区设置在下一个RunLoop周期
             DispatchQueue.main.async {
                 self.selectedSubArea = subArea
-                // print("成功映射分区: \(mainArea.name) -> \(subArea.name)")
             }
         } else {
-            print("未找到匹配的分区，areaId: \(liveInfo.areaId)")
-            // 打印可用分区信息用于调试
-            print("可用分区:")
-            for partition in apiService.partitions {
-                print("- \(partition.name) (id: \(partition.id))")
-                if let subAreas = partition.list {
-                    for subArea in subAreas {
-                        print("  - \(subArea.name) (id: \(subArea.id))")
-                    }
-                }
-            }
+            AppLog.live.debug("未找到匹配的分区，areaId: \(liveInfo.areaId, privacy: .public)")
         }
     }
     

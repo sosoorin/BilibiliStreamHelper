@@ -43,7 +43,7 @@ extension APIClient {
         
         // 如果是未登录状态，返回认证错误
         if code == -101 {
-            print("API返回未登录状态，Cookie可能无效或已过期")
+            AppLog.network.debug("API返回未登录状态，Cookie可能无效或已过期")
             throw BilibiliAPIError.authenticationRequired
         }
         
@@ -51,7 +51,7 @@ extension APIClient {
         guard code == 0,
               let isLogin = json["data"]["isLogin"].bool,
               isLogin else {
-            print("用户未登录或API返回错误: code=\(code)")
+            AppLog.network.debug("用户未登录或API返回错误: code=\(code, privacy: .public)")
             throw BilibiliAPIError.apiError(code, json["message"].stringValue)
         }
         
@@ -82,7 +82,7 @@ extension APIClient {
                 dynamicCount: statInfo.dynamicCount
             )
         } catch {
-            print("获取用户统计信息失败: \(error)")
+            AppLog.network.debug("获取用户统计信息失败: \(error, privacy: .public)")
         }
         
         self.userInfo = userInfo
@@ -127,7 +127,7 @@ extension APIClient {
             dynamicCount: statData["dynamic_count"].intValue
         )
         
-        print("用户统计信息: 关注=\(stats.following), 粉丝=\(stats.follower), 动态=\(stats.dynamicCount)")
+        AppLog.network.debug("用户统计信息: 关注=\(stats.following, privacy: .public), 粉丝=\(stats.follower, privacy: .public), 动态=\(stats.dynamicCount, privacy: .public)")
         return stats
     }
 

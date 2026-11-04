@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 
 // MARK: - Avatar Cache Manager
 
@@ -25,7 +26,7 @@ class AvatarCache {
         
         // 如果不强制刷新且已经缓存了，直接返回
         if !forceRefresh && FileManager.default.fileExists(atPath: cacheFileURL.path) {
-            print("使用已缓存的头像: \(cacheFileURL.path)")
+            AppLog.network.debug("使用已缓存的头像: \(cacheFileURL.path, privacy: .public)")
             return cacheFileURL
         }
         
@@ -36,15 +37,15 @@ class AvatarCache {
             // 如果已存在旧文件，先删除
             if FileManager.default.fileExists(atPath: cacheFileURL.path) {
                 try FileManager.default.removeItem(at: cacheFileURL)
-                print("已删除旧的头像缓存")
+                AppLog.network.debug("已删除旧的头像缓存")
             }
             
             // 保存新头像
             try data.write(to: cacheFileURL)
-            print("头像已更新缓存到: \(cacheFileURL.path)")
+            AppLog.network.debug("头像已更新缓存到: \(cacheFileURL.path, privacy: .public)")
             return cacheFileURL
         } catch {
-            print("头像缓存失败: \(error)")
+            AppLog.network.debug("头像缓存失败: \(error, privacy: .public)")
             return nil
         }
     }

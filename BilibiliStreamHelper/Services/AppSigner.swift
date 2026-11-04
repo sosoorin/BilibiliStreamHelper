@@ -22,7 +22,7 @@ class AppSigner {
         
         // 计算签名
         let signString = query + appSec
-        let data = signString.data(using: .utf8)!
+        let data = Data(signString.utf8)
         let digest = Insecure.MD5.hash(data: data)
         let sign = digest.map { String(format: "%02x", $0) }.joined()
         

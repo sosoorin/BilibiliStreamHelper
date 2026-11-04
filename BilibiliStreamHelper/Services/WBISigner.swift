@@ -58,7 +58,7 @@ class WBISigner {
         
         // 计算w_rid
         let signString = query + mixinKey
-        let data = signString.data(using: .utf8)!
+        let data = Data(signString.utf8)
         let digest = Insecure.MD5.hash(data: data)
         let wRid = digest.map { String(format: "%02x", $0) }.joined()
         

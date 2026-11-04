@@ -207,7 +207,7 @@ extension APIClient {
     @MainActor
     func getPartitions() async throws -> [LivePartition] {
         let response = try await requestAPI(
-            url: "https://api.live.bilibili.com/room/v1/Area/getList?show_pinyin=1",
+            url: "https://api.live.bilibili.com/room/v1/Area/getList",
             method: .GET,
             headers: Constants.header,
             cookies: cookies
@@ -222,7 +222,8 @@ extension APIClient {
             let subPartitions = partitionJson["list"].arrayValue.map { subJson in
                 LiveSubPartition(
                     id: subJson["id"].intValue,
-                    name: subJson["name"].stringValue
+                    name: subJson["name"].stringValue,
+                    isLocked: subJson["lock_status"].stringValue != "0"
                 )
             }
             

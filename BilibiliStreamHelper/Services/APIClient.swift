@@ -50,10 +50,13 @@ class APIClient: ObservableObject {
     
     // MARK: - Cookie Utilities
     
+    /// Cookie 解析用的正则。常量，只编译一次；万一失败也不炸，退化成空结果。
+    private static let cookiePattern = #"(\w+)=([^;]+)(?:;|$)"#
+    private static let cookieRegex = try? NSRegularExpression(pattern: cookiePattern)
+    
     func cookieStringToDict(_ cookieString: String) -> [String: String] {
         var cookies: [String: String] = [:]
-        let pattern = #"(\w+)=([^;]+)(?:;|$)"#
-        let regex = try! NSRegularExpression(pattern: pattern)
+        guard let regex = Self.cookieRegex else { return cookies }
         let matches = regex.matches(in: cookieString, range: NSRange(cookieString.startIndex..., in: cookieString))
         
         for match in matches {
