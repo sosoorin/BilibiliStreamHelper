@@ -16,7 +16,6 @@ struct StreamInfoView: View {
     @State private var showCopyToast = false
     
     var body: some View {
-        ScrollView {
             VStack(spacing: 24) {
                 if let streamInfo = apiService.streamInfo {
                     // 推流信息卡片
@@ -105,10 +104,7 @@ struct StreamInfoView: View {
                     }
                 }
             }
-            .padding(16)
-        }
-        .background(Color(NSColor.controlBackgroundColor))
-            .refreshable {
+        .refreshable {
                 // 这里可以添加刷新逻辑
             }
             .overlay(

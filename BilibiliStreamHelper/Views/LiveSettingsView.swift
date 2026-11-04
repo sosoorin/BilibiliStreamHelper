@@ -17,7 +17,6 @@ struct LiveSettingsView: View {
     
     
     var body: some View {
-        ScrollView {
             VStack(spacing: 24) {
                 // 基础信息卡片
                 SectionCard(icon: "gear", title: "基础信息", accent: .blue) {
@@ -164,9 +163,6 @@ struct LiveSettingsView: View {
                     }
                 }
             }
-            .padding(16)
-        }
-        .background(Color(NSColor.controlBackgroundColor))
         .onAppear {
             setupInitialValues()
         }

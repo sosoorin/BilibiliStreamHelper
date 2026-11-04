@@ -9,45 +9,30 @@ import SwiftUI
 
 /// 「直播」页。
 ///
-/// 侧边栏原先把「直播设置」和「推流信息」平铺成两项，但它们是一条流程的两个阶段。
-/// 合并成一页之后，开播/停播这个主操作被提到页头常驻，下面的内容跟着直播状态走。
+/// 原来是侧边栏里的两项，但它们是同一条流程的两个阶段，所以合成一页：
+/// 页头常驻开播/停播，下面按状态排内容——开播后推流信息在最上面，
+/// 设置永远在下面，随时能改标题和分区。
 struct LivePageView: View {
-    
-    private enum Section {
-        case settings
-        case stream
-    }
     
     @StateObject private var apiService = APIClient.shared
     @StateObject private var vm = LiveSettingsViewModel()
-    @State private var section: Section = .settings
     @State private var confirmStop = false
     
     var body: some View {
         VStack(spacing: 0) {
             actionBar
             
-            if apiService.isLiveActive {
-                Picker("", selection: $section) {
-                    Text("直播设置").tag(Section.settings)
-                    Text("推流信息").tag(Section.stream)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // 开播后推流信息在最上面——那是这一刻唯一要做的事
+                    if apiService.isLiveActive {
+                        StreamInfoView()
+                    }
+                    LiveSettingsView(vm: vm)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(maxWidth: 280)
-                .padding(.vertical, 10)
+                .padding(16)
             }
-            
-            switch activeSection {
-            case .settings:
-                LiveSettingsView(vm: vm)
-            case .stream:
-                StreamInfoView()
-            }
-        }
-        .onChange(of: apiService.isLiveActive) { isLive in
-            // 开播后自动切到推流信息，停了自动回到设置
-            section = isLive ? .stream : .settings
+            .background(Color(NSColor.controlBackgroundColor))
         }
         .alert("确定要停止直播吗？", isPresented: $confirmStop) {
             Button("取消", role: .cancel) { }
@@ -127,8 +112,4 @@ struct LivePageView: View {
         NSWorkspace.shared.open(url)
     }
     
-    /// 没开播时无论选中哪个，都只能看到设置
-    private var activeSection: Section {
-        apiService.isLiveActive ? section : .settings
-    }
 }
