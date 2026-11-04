@@ -9,12 +9,7 @@ import SwiftUI
 
 struct DanmakuView: View {
     @StateObject private var apiService = APIClient.shared
-    @State private var danmakuText = ""
-    @State private var danmakuHistory: [DanmakuMessage] = []
-    @State private var showSuccess = false
-    @State private var showError = false
-    @State private var errorMessage = ""
-    @State private var isSending = false
+    @StateObject private var vm = DanmakuViewModel()
     
     var body: some View {
         ScrollView {
@@ -56,24 +51,24 @@ struct DanmakuView: View {
                     // 卡片内容
                     VStack(spacing: 16) {
                         HStack(spacing: 12) {
-                            TextField("输入弹幕内容...", text: $danmakuText, axis: .vertical)
+                            TextField("输入弹幕内容...", text: $vm.danmakuText, axis: .vertical)
                                 .textFieldStyle(.roundedBorder)
                                 .lineLimit(1...3)
                                 .onSubmit {
-                                    if !danmakuText.isEmpty {
+                                    if !vm.danmakuText.isEmpty {
                                         Task {
-                                            await sendDanmaku()
+                                            await vm.send()
                                         }
                                     }
                                 }
                             
                             Button("发送") {
                                 Task {
-                                    await sendDanmaku()
+                                    await vm.send()
                                 }
                             }
                             .buttonStyle(.borderedProminent)
-                            .disabled(danmakuText.isEmpty || isSending || !apiService.isLoggedIn)
+                            .disabled(vm.danmakuText.isEmpty || vm.isSending || !apiService.isLoggedIn)
                         }
                         
                         // 状态提示
@@ -120,9 +115,9 @@ struct DanmakuView: View {
                             .font(.headline)
                             .fontWeight(.semibold)
                         Spacer()
-                        if !danmakuHistory.isEmpty {
+                        if !vm.danmakuHistory.isEmpty {
                             Button("清空历史") {
-                                danmakuHistory.removeAll()
+                                vm.danmakuHistory.removeAll()
                             }
                             .font(.caption)
                             .foregroundColor(.red)
@@ -134,7 +129,7 @@ struct DanmakuView: View {
                     
                     // 卡片内容
                     VStack(spacing: 16) {
-                        if danmakuHistory.isEmpty {
+                        if vm.danmakuHistory.isEmpty {
                             VStack(spacing: 15) {
                                 Image(systemName: "message.circle")
                                     .font(.system(size: 50))
@@ -154,7 +149,7 @@ struct DanmakuView: View {
                         } else {
                             ScrollView {
                                 LazyVStack(spacing: 12) {
-                                    ForEach(danmakuHistory.reversed()) { message in
+                                    ForEach(vm.danmakuHistory.reversed()) { message in
                                         DanmakuHistoryRow(message: message)
                                     }
                                 }
@@ -194,7 +189,7 @@ struct DanmakuView: View {
                         ], spacing: 10) {
                             ForEach(quickDanmakuOptions, id: \.self) { option in
                                 Button(option) {
-                                    danmakuText = option
+                                    vm.danmakuText = option
                                 }
                                 .buttonStyle(.bordered)
                                 .font(.caption)
@@ -212,80 +207,25 @@ struct DanmakuView: View {
             .padding(16)
         }
         .background(Color(NSColor.controlBackgroundColor))
-        .alert("发送成功", isPresented: $showSuccess) {
+        .alert("发送成功", isPresented: $vm.showSuccess) {
             Button("确定") { }
         } message: {
             Text("弹幕发送成功")
         }
-        .alert("发送失败", isPresented: $showError) {
+        .alert("发送失败", isPresented: $vm.showError) {
             Button("确定") { }
         } message: {
-            Text(errorMessage)
+            Text(vm.errorMessage)
         }
     }
     
     // MARK: - 私有方法
     
-    private func sendDanmaku() async {
-        guard !danmakuText.isEmpty else { return }
-        
-        isSending = true
-        let messageText = danmakuText
-        danmakuText = "" // 清空输入框
-        
-        do {
-            try await apiService.sendBullet(message: messageText)
-            
-            await MainActor.run {
-                // 添加到历史记录
-                let message = DanmakuMessage(
-                    content: messageText,
-                    timestamp: Date(),
-                    isSuccess: true
-                )
-                danmakuHistory.append(message)
-                
-                self.showSuccess = true
-            }
-        } catch {
-            await MainActor.run {
-                // 添加失败记录
-                let message = DanmakuMessage(
-                    content: messageText,
-                    timestamp: Date(),
-                    isSuccess: false,
-                    errorMessage: error.localizedDescription
-                )
-                danmakuHistory.append(message)
-                
-                self.errorMessage = error.localizedDescription
-                self.showError = true
-            }
-        }
-        
-        isSending = false
-    }
     
     private let quickDanmakuOptions = [
         "666", "牛牛牛", "nice", "哈哈哈", "赞", "加油",
         "支持", "厉害", "好棒", "太强了", "学到了", "谢谢主播"
     ]
-}
-
-// MARK: - 弹幕消息模型
-struct DanmakuMessage: Identifiable {
-    let id = UUID()
-    let content: String
-    let timestamp: Date
-    let isSuccess: Bool
-    let errorMessage: String?
-    
-    init(content: String, timestamp: Date, isSuccess: Bool, errorMessage: String? = nil) {
-        self.content = content
-        self.timestamp = timestamp
-        self.isSuccess = isSuccess
-        self.errorMessage = errorMessage
-    }
 }
 
 // MARK: - 弹幕历史记录行

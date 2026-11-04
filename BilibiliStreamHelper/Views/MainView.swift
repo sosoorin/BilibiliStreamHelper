@@ -27,6 +27,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 
 struct MainView: View {
     @StateObject private var apiService = APIClient.shared
+    @StateObject private var vm = MainViewModel()
     @State private var selectedItem: SidebarItem = .liveSettings
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     
@@ -42,10 +43,7 @@ struct MainView: View {
         }
         .navigationSplitViewStyle(.balanced)
         .onAppear {
-            Task {
-                // 加载分区信息
-                try? await apiService.getPartitions()
-            }
+            Task { await vm.prefetchPartitions() }
         }
     }
 }

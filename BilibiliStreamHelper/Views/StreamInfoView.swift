@@ -10,8 +10,7 @@ import AppKit
 
 struct StreamInfoView: View {
     @StateObject private var apiService = APIClient.shared
-    @State private var showError = false
-    @State private var errorMessage = ""
+    @StateObject private var vm = StreamInfoViewModel()
     @State private var copyToastMessage = ""
     @State private var showCopyToast = false
     
@@ -155,7 +154,10 @@ struct StreamInfoView: View {
                             HStack(spacing: 12) {
                                 Button("停止直播") {
                                     Task {
-                                        await stopLive()
+                                        if await vm.stopLive() {
+                                            copyToastMessage = "直播已停止"
+                                            showCopyToast = true
+                                        }
                                     }
                                 }
                                 .buttonStyle(.bordered)
@@ -290,10 +292,10 @@ struct StreamInfoView: View {
                 .padding(.bottom, 50)
                 , alignment: .bottom
             )
-        .alert("操作失败", isPresented: $showError) {
+        .alert("操作失败", isPresented: $vm.showError) {
             Button("确定") { }
         } message: {
-            Text(errorMessage)
+            Text(vm.errorMessage)
         }
     }
     
@@ -315,10 +317,8 @@ struct StreamInfoView: View {
             showToast("\(type)已复制")
         } else {
             print("复制验证失败")
-            DispatchQueue.main.async {
-                self.errorMessage = "复制失败，请检查系统权限或重试"
-                self.showError = true
-            }
+            vm.errorMessage = "复制失败，请检查系统权限或重试"
+            vm.showError = true
         }
     }
     
@@ -345,25 +345,12 @@ struct StreamInfoView: View {
         } else {
             print("完整信息复制失败")
             DispatchQueue.main.async {
-                self.errorMessage = "复制失败，请检查系统权限或重试"
-                self.showError = true
+                self.vm.errorMessage = "复制失败，请检查系统权限或重试"
+                self.vm.showError = true
             }
         }
     }
     
-    private func stopLive() async {
-        do {
-            try await apiService.stopLive()
-            await MainActor.run {
-                showToast("直播已停止")
-            }
-        } catch {
-            await MainActor.run {
-                self.errorMessage = error.localizedDescription
-                self.showError = true
-            }
-        }
-    }
     
     private func showToast(_ message: String) {
         DispatchQueue.main.async {
