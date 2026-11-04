@@ -15,14 +15,12 @@ struct LiveSettingsView: View {
     @StateObject private var apiService = APIClient.shared
     @ObservedObject var vm: LiveSettingsViewModel
     
-    /// 「推流信息」按钮把页面滚到推流区（由 LivePageView 处理）
-    var onShowStreamInfo: () -> Void = {}
     
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // 基础设置卡片
-                SectionCard(icon: "gear", title: "基础设置", accent: .blue) {
+                // 基础信息卡片
+                SectionCard(icon: "gear", title: "基础信息", accent: .blue) {
                     Button {
                         Task { await vm.refreshAll() }
                     } label: {
@@ -143,51 +141,6 @@ struct LiveSettingsView: View {
                                 .buttonStyle(.bordered)
                                 .disabled(vm.selectedSubArea == nil || vm.isLoading)
                             }
-                        }
-                    }
-                }
-                
-                // 直播控制卡片
-                SectionCard(
-                    icon: apiService.isLiveActive ? "dot.radiowaves.left.and.right" : "play.circle",
-                    title: "直播状态",
-                    accent: apiService.isLiveActive ? .green : .orange
-                ) {
-                    if apiService.isLiveActive {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 8, height: 8)
-                            Text("直播中")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
-                    }
-                } content: {
-                    VStack(spacing: 12) {
-                        Text(apiService.isLiveActive
-                             ? "直播进行中。开始和停止直播请用页面顶部的主按钮。"
-                             : "填写好标题和分区后，用页面顶部的「开始直播」开播。")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Divider()
-                        
-                        // 快速操作
-                        HStack(spacing: 12) {
-                            Button("进入直播间") {
-                                openLiveRoom()
-                            }
-                            .buttonStyle(.bordered)
-                            .disabled(apiService.userInfo == nil)
-                            
-                            Spacer()
-                            
-                            Button("推流信息") {
-                                onShowStreamInfo()
-                            }
-                            .buttonStyle(.bordered)
                         }
                     }
                 }
@@ -328,16 +281,6 @@ struct LiveSettingsView: View {
     }
     
     
-    private func openLiveRoom() {
-        guard let userInfo = apiService.userInfo else { return }
-        
-        // 获取roomId，如果没有则使用uid作为fallback
-        let roomIdentifier = apiService.currentRoomId.isEmpty ? String(userInfo.uid) : apiService.currentRoomId
-        
-        if let url = URL(string: "https://live.bilibili.com/\(roomIdentifier)") {
-            NSWorkspace.shared.open(url)
-        }
-    }
 }
 
 // MARK: - 步骤视图组件

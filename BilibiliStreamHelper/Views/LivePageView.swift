@@ -40,7 +40,7 @@ struct LivePageView: View {
             
             switch activeSection {
             case .settings:
-                LiveSettingsView(vm: vm, onShowStreamInfo: { section = .stream })
+                LiveSettingsView(vm: vm)
             case .stream:
                 StreamInfoView()
             }
@@ -79,6 +79,13 @@ struct LivePageView: View {
                     .foregroundColor(.secondary)
             }
             
+            // 次要操作
+            Button("进入直播间") {
+                openLiveRoom()
+            }
+            .buttonStyle(.bordered)
+            .disabled(apiService.userInfo == nil)
+            
             if apiService.isLiveActive {
                 Button { confirmStop = true } label: {
                     Image(systemName: "stop.fill")
@@ -111,6 +118,13 @@ struct LivePageView: View {
         .overlay(alignment: .bottom) {
             Divider()
         }
+    }
+    
+    private func openLiveRoom() {
+        guard let userInfo = apiService.userInfo else { return }
+        let id = apiService.currentRoomId.isEmpty ? String(userInfo.uid) : apiService.currentRoomId
+        guard let url = URL(string: "https://live.bilibili.com/\(id)") else { return }
+        NSWorkspace.shared.open(url)
     }
     
     /// 没开播时无论选中哪个，都只能看到设置
