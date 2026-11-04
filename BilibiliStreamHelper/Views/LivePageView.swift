@@ -80,19 +80,29 @@ struct LivePageView: View {
             }
             
             if apiService.isLiveActive {
-                Button("停止直播") { confirmStop = true }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
-                    .controlSize(.large)
-                    .disabled(vm.isLoading)
+                Button { confirmStop = true } label: {
+                    Image(systemName: "stop.fill")
+                        .frame(width: 20, height: 20)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .controlSize(.large)
+                .disabled(vm.isLoading)
+                .help("停止直播")
+                .accessibilityLabel("停止直播")
             } else {
-                Button("开始直播") {
+                Button {
                     Task { await vm.startLiveWithCurrentSelection() }
+                } label: {
+                    Image(systemName: "play.fill")
+                        .frame(width: 20, height: 20)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.green)
                 .controlSize(.large)
                 .disabled(!vm.canStartLive)
+                .help("开始直播")
+                .accessibilityLabel("开始直播")
             }
         }
         .padding(.horizontal, 16)
