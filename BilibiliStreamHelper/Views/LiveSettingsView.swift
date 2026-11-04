@@ -84,9 +84,14 @@ struct LiveSettingsView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .onChange(of: vm.selectedMainArea) { newValue in
-                                    if !vm.isLoadingInitialData {
-                                        vm.selectedSubArea = nil
+                                    // 手动换主分区时清掉子分区；
+                                    // 但回填房间信息时会先设主分区再设子分区，
+                                    // 这种情况下子分区本来就属于新主分区，不能清。
+                                    if let sub = vm.selectedSubArea,
+                                       newValue?.list?.contains(where: { $0.id == sub.id }) == true {
+                                        return
                                     }
+                                    vm.selectedSubArea = nil
                                 }
                                 
                                 // 子分区

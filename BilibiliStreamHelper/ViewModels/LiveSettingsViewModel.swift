@@ -79,11 +79,6 @@ final class LiveSettingsViewModel: ObservableObject {
         selectedSubArea = sub
     }
     
-    /// 第一次选中某个主分区时，把子分区清掉
-    func clearSubSelection() {
-        selectedSubArea = nil
-    }
-    
     // MARK: - 读取
     
     /// 首次进入时加载分区和房间信息。
