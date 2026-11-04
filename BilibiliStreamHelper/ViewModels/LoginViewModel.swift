@@ -27,10 +27,10 @@ final class LoginViewModel: ObservableObject {
         case expired
     }
     
-    private let api: APIClient
+    private let api: any BilibiliAPI
     private var pollingTask: Task<Void, Never>?
     
-    init(api: APIClient = .shared) {
+    init(api: any BilibiliAPI = APIClient.shared) {
         self.api = api
     }
     

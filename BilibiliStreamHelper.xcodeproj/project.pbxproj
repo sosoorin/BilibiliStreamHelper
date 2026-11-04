@@ -16,12 +16,18 @@
 		71565CD62E8277DE004F6104 /* BilibiliStreamHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BilibiliStreamHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71AFBE732E83B06F00585F25 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		71AFBEBF2E83B58700585F25 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		A1B2C3D40000000000000001 /* BilibiliStreamHelperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BilibiliStreamHelperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		71565CD82E8277DE004F6104 /* BilibiliStreamHelper */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BilibiliStreamHelper;
+			sourceTree = "<group>";
+		};
+		A1B2C3D40000000000000002 /* BilibiliStreamHelperTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BilibiliStreamHelperTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -35,6 +41,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D40000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -45,6 +58,7 @@
 				71AFBE732E83B06F00585F25 /* README.md */,
 				71565CD82E8277DE004F6104 /* BilibiliStreamHelper */,
 				71565CD72E8277DE004F6104 /* Products */,
+				71CC46D2309B2BF0005075FC /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,8 +66,17 @@
 			isa = PBXGroup;
 			children = (
 				71565CD62E8277DE004F6104 /* BilibiliStreamHelper.app */,
+				A1B2C3D40000000000000001 /* BilibiliStreamHelperTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		71CC46D2309B2BF0005075FC /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D40000000000000002 /* BilibiliStreamHelperTests */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -81,6 +104,26 @@
 			productName = BilibiliLiveStremCodeSwift;
 			productReference = 71565CD62E8277DE004F6104 /* BilibiliStreamHelper.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A1B2C3D40000000000000003 /* BilibiliStreamHelperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D40000000000000009 /* Build configuration list for PBXNativeTarget "BilibiliStreamHelperTests" */;
+			buildPhases = (
+				A1B2C3D40000000000000004 /* Sources */,
+				A1B2C3D40000000000000005 /* Frameworks */,
+				A1B2C3D40000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A1B2C3D40000000000000002 /* BilibiliStreamHelperTests */,
+			);
+			name = BilibiliStreamHelperTests;
+			productName = BilibiliStreamHelperTests;
+			productReference = A1B2C3D40000000000000001 /* BilibiliStreamHelperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -115,6 +158,7 @@
 			projectRoot = "";
 			targets = (
 				71565CD52E8277DE004F6104 /* BilibiliStreamHelper */,
+				A1B2C3D40000000000000003 /* BilibiliStreamHelperTests */,
 			);
 		};
 /* End PBXProject section */
@@ -129,10 +173,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D40000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		71565CD22E8277DE004F6104 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D40000000000000004 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -322,6 +380,38 @@
 			};
 			name = Release;
 		};
+		A1B2C3D4000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sosoorin.BilibiliStreamHelperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BilibiliStreamHelper.app/Contents/MacOS/BilibiliStreamHelper";
+			};
+			name = Debug;
+		};
+		A1B2C3D4000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sosoorin.BilibiliStreamHelperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BilibiliStreamHelper.app/Contents/MacOS/BilibiliStreamHelper";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -339,6 +429,15 @@
 			buildConfigurations = (
 				71565CE22E8277DE004F6104 /* Debug */,
 				71565CE32E8277DE004F6104 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D40000000000000009 /* Build configuration list for PBXNativeTarget "BilibiliStreamHelperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4000000000000000A /* Debug */,
+				A1B2C3D4000000000000000B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

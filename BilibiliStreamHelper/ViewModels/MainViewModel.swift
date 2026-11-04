@@ -12,9 +12,9 @@ import Foundation
 @MainActor
 final class MainViewModel: ObservableObject {
     
-    private let api: APIClient
+    private let api: any BilibiliAPI
     
-    init(api: APIClient = .shared) {
+    init(api: any BilibiliAPI = APIClient.shared) {
         self.api = api
     }
     

@@ -11,6 +11,10 @@ import CryptoKit
 import SwiftyJSON
 import Combine
 
+// MARK: - 协议一致性
+
+extension APIClient: BilibiliAPI {}
+
 // MARK: - Main API Service
 
 class APIClient: ObservableObject {
