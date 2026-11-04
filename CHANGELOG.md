@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔧 构建
+- CI 切换到 Xcode 27 runner 镜像（`xcode-27`），删除多余的 setup-xcode 步骤
+- GitHub Actions 全部升级到 Node 24 运行时版本
+- 本地与 CI 工具链统一为 Xcode 27，部署目标仍为 macOS 13.0
+
+
 ## [1.1.1] - 2026-11-04
 
 ### 🐛 Fixes

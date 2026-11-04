@@ -54,7 +54,7 @@ make open
 
 ### 系统要求
 - **运行**: macOS 13.0+
-- **开发**: macOS 13.0+ + Xcode 26.0+
+- **开发**: macOS 13.0+ + Xcode 27.0+
 
 ### 使用流程
 1. **登录** → 扫码或手动输入Cookie
@@ -69,7 +69,7 @@ make open
 - **Keychain** - 安全存储
 
 ### 开发工具链
-- **Xcode 26.0** - 最新开发环境
+- **Xcode 27.0** - 最新开发环境
 - **GitHub Actions** - 自动化CI/CD流程
 - **SwiftyJSON** - JSON数据解析
 - **语义化版本管理** - 规范的版本控制

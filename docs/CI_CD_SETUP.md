@@ -14,8 +14,8 @@
 2. **手动**: GitHub → Actions → Release macOS App → Run workflow
 
 ### 构建环境
-- **Runner**: macos-26
-- **Xcode**: 26.0
+- **Runner**: xcode-27（Xcode 27 单版本镜像，仅 Apple Silicon）
+- **Xcode**: 27
 - **架构**: arm64 + x86_64
 - **目标**: macOS 13.0+
 
