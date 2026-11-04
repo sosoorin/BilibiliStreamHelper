@@ -1,5 +1,5 @@
 //
-//  SecureStorageManager.swift
+//  SecureStorage.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -10,7 +10,7 @@ import Security
 
 // MARK: - Secure Storage Manager
 
-class SecureStorageManager {
+class SecureStorage {
     private static let serviceName = "com.sosoorin.bili.livestream"
     private static let accountName = "login_info"
     private static let roomIdKey = "room_id"

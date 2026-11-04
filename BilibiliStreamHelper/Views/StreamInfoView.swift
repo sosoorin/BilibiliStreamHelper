@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 
 struct StreamInfoView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var copyToastMessage = ""

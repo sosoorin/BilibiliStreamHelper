@@ -1,5 +1,5 @@
 //
-//  BilibiliAPIService.swift
+//  APIClient.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -13,8 +13,8 @@ import Combine
 
 // MARK: - Main API Service
 
-class BilibiliAPIService: ObservableObject {
-    static let shared = BilibiliAPIService()
+class APIClient: ObservableObject {
+    static let shared = APIClient()
     
     @Published var isLoggedIn = false
     @Published var hasLoadedInitialLiveInfo = false
@@ -71,7 +71,7 @@ class BilibiliAPIService: ObservableObject {
         
         let url = URL(string: "https://api.live.bilibili.com/room/v2/Room/room_id_by_uid?uid=\(uid)")!
         var request = URLRequest(url: url)
-        request.setValue(BilibiliConstants.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await session.data(for: request)
         

@@ -1,5 +1,5 @@
 //
-//  BilibiliConstants.swift
+//  Constants.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Constants and Data Structures
 
-struct BilibiliConstants {
+struct Constants {
     /// 与参考项目（ChaceQC/bilibili_live_stream_code）保持一致：
     /// 只报 UA，不伪造 sec-ch-ua / sec-fetch 这类客户端提示，
     /// 避免出现「macOS 应用自称 Windows Edge 129」这种自相矛盾的指纹。

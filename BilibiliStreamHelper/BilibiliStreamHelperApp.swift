@@ -11,7 +11,7 @@ import SwiftUI
 struct BilibiliLiveStremCodeSwiftApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
         .windowStyle(.hiddenTitleBar) // macOS上隐藏标题栏，iOS上无效果
     }

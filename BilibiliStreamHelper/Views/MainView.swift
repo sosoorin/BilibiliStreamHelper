@@ -26,7 +26,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 }
 
 struct MainView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var selectedItem: SidebarItem = .liveSettings
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     
@@ -53,7 +53,7 @@ struct MainView: View {
 // MARK: - 侧边栏视图
 struct SidebarView: View {
     @Binding var selectedItem: SidebarItem
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     
     var body: some View {
         VStack(spacing: 0) {
@@ -179,7 +179,7 @@ struct SidebarMenuButton: View {
 // MARK: - 用户信息卡片
 struct UserInfoCard: View {
     let userInfo: UserInfo
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var showUserDetail = false
     
     var body: some View {

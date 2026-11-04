@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  RootView.swift
 //  BilibiliLiveStremCodeSwift
 //
 //  Created by sosoorin on 2025/9/23.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+struct RootView: View {
+    @StateObject private var apiService = APIClient.shared
     
     var body: some View {
         Group {
@@ -23,5 +23,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    RootView()
 }

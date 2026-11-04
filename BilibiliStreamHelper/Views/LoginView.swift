@@ -10,7 +10,7 @@ import CoreImage.CIFilterBuiltins
 import AppKit
 
 struct LoginView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var qrCodeInfo: QRCodeInfo?
     @State private var qrCodeImage: NSImage?
     @State private var isPolling = false

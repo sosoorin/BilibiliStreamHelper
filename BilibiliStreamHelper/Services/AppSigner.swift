@@ -1,5 +1,5 @@
 //
-//  AppSignManager.swift
+//  AppSigner.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -10,7 +10,7 @@ import CryptoKit
 
 // MARK: - App Sign Algorithm
 
-class AppSignManager {
+class AppSigner {
     static func appSign(params: [String: Any], appKey: String, appSec: String) -> [String: Any] {
         var newParams = params
         newParams["appkey"] = appKey

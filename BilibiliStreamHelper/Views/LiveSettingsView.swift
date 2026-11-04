@@ -12,7 +12,7 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 
 struct LiveSettingsView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var liveTitle = "我的直播间"
     @State private var selectedMainArea: LivePartition?
     @State private var selectedSubArea: LiveSubPartition?
@@ -442,7 +442,7 @@ struct LiveSettingsView: View {
                     self.showError = true
                 default:
                     // 其他API错误：标题带错误码，正文是 B站 原文
-                    let display = BilibiliLiveErrorText.display(code: code, message: message)
+                    let display = LiveErrorText.display(code: code, message: message)
                     self.errorTitle = display.title
                     self.errorMessage = display.message
                     self.showError = true
@@ -468,7 +468,7 @@ struct LiveSettingsView: View {
             self.showFaceVerification = true
         } else {
             // B站 没给可用的认证链接，就把它的原话和错误码原样给用户
-            let display = BilibiliLiveErrorText.display(code: code, message: message)
+            let display = LiveErrorText.display(code: code, message: message)
             self.errorTitle = display.title
             self.errorMessage = display.message
             self.showError = true

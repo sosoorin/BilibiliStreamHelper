@@ -1,5 +1,5 @@
 //
-//  BilibiliAPIService+Danmaku.swift
+//  APIClient+Danmaku.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -10,7 +10,7 @@ import CryptoKit
 import SwiftyJSON
 import Combine
 
-extension BilibiliAPIService {
+extension APIClient {
 
     
     // MARK: - Danmaku API
@@ -21,9 +21,9 @@ extension BilibiliAPIService {
         }
         
         // 获取wbi签名
-        let (_, query) = try await WBIManager.getWRidAndWts(otherData: ["web_location": 444.8])
+        let (_, query) = try await WBISigner.getWRidAndWts(otherData: ["web_location": 444.8])
         
-        var bulletData = BilibiliConstants.danmakuData
+        var bulletData = Constants.danmakuData
         bulletData["msg"] = message
         bulletData["csrf_token"] = csrfToken
         bulletData["csrf"] = csrfToken
@@ -33,7 +33,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/msg/send?\(query)",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: bulletData,
             cookies: cookies
         )

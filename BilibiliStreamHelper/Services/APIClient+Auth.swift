@@ -1,5 +1,5 @@
 //
-//  BilibiliAPIService+Auth.swift
+//  APIClient+Auth.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -11,7 +11,7 @@ import CryptoKit
 import SwiftyJSON
 import Combine
 
-extension BilibiliAPIService {
+extension APIClient {
 
     
     // MARK: - Manual Login
@@ -54,11 +54,11 @@ extension BilibiliAPIService {
         )
         
         // 保存到安全存储
-        try SecureStorageManager.saveLoginInfo(loginInfo)
+        try SecureStorage.saveLoginInfo(loginInfo)
         
         // 每次登录都刷新缓存头像
         Task {
-            await AvatarCacheManager.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
+            await AvatarCache.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
         }
         
         await MainActor.run {
@@ -69,7 +69,7 @@ extension BilibiliAPIService {
 
     
     func loadSavedLogin() async throws {
-        guard let loginInfo = SecureStorageManager.loadLoginInfo() else {
+        guard let loginInfo = SecureStorage.loadLoginInfo() else {
             return
         }
         
@@ -93,7 +93,7 @@ extension BilibiliAPIService {
         
         // 每次自动登录也刷新缓存头像
         Task {
-            await AvatarCacheManager.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
+            await AvatarCache.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
         }
         
         await MainActor.run {
@@ -104,7 +104,7 @@ extension BilibiliAPIService {
 
     
     private func clearSavedLogin() {
-        SecureStorageManager.deleteLoginInfo()
+        SecureStorage.deleteLoginInfo()
     }
 
     
@@ -115,7 +115,7 @@ extension BilibiliAPIService {
 
     
     func getSavedLoginInfo() -> (roomId: String, cookies: String, csrf: String)? {
-        guard let loginInfo = SecureStorageManager.loadLoginInfo() else {
+        guard let loginInfo = SecureStorage.loadLoginInfo() else {
             return nil
         }
         
@@ -124,24 +124,24 @@ extension BilibiliAPIService {
 
     
     func getSavedLoginInfoFull() -> LoginInfo? {
-        return SecureStorageManager.loadLoginInfo()
+        return SecureStorage.loadLoginInfo()
     }
 
     
     // MARK: - Additional Storage Utilities
     
     func hasStoredLoginInfo() -> Bool {
-        return SecureStorageManager.loadLoginInfo() != nil
+        return SecureStorage.loadLoginInfo() != nil
     }
 
     
     func getLoginInfoSavedDate() -> Date? {
-        return SecureStorageManager.loadLoginInfo()?.savedDate
+        return SecureStorage.loadLoginInfo()?.savedDate
     }
 
     
     func clearAllStoredData() {
-        SecureStorageManager.deleteLoginInfo()
+        SecureStorage.deleteLoginInfo()
         // 重置内存状态
         self.roomId = ""
         self.csrfToken = ""
@@ -160,7 +160,7 @@ extension BilibiliAPIService {
     func getQRCode() async throws -> QRCodeInfo {
         let url = URL(string: "https://passport.bilibili.com/x/passport-login/web/qrcode/generate")!
         var request = URLRequest(url: url)
-        request.setValue(BilibiliConstants.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         
         // 重置登录状态
         self.isLoggedIn = false
@@ -192,7 +192,7 @@ extension BilibiliAPIService {
     func checkQRLogin(qrcodeKey: String) async throws -> Bool {
         let url = URL(string: "https://passport.bilibili.com/x/passport-login/web/qrcode/poll")!
         var request = URLRequest(url: url)
-        request.setValue(BilibiliConstants.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "qrcode_key", value: qrcodeKey)]
@@ -281,11 +281,11 @@ extension BilibiliAPIService {
             )
             
             // 保存到安全存储
-            try SecureStorageManager.saveLoginInfo(loginInfo)
+            try SecureStorage.saveLoginInfo(loginInfo)
             
             // 每次登录都刷新缓存头像
             Task {
-                await AvatarCacheManager.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
+                await AvatarCache.cacheAvatar(from: userInfo.face, userId: String(userInfo.mid), forceRefresh: true)
             }
             
             // 更新内存状态 - roomId已经在getUserInfo()中设置了
@@ -349,11 +349,11 @@ extension BilibiliAPIService {
     func logout() {
         // 清除头像缓存
         if let userId = userInfo?.uid {
-            AvatarCacheManager.clearAvatarCache(for: String(userId))
+            AvatarCache.clearAvatarCache(for: String(userId))
         }
         
         // 清除持久化存储的登录信息
-        SecureStorageManager.deleteLoginInfo()
+        SecureStorage.deleteLoginInfo()
         
         // 重置内存状态
         isLoggedIn = false

@@ -1,5 +1,5 @@
 //
-//  BilibiliAPIService+Live.swift
+//  APIClient+Live.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -10,7 +10,7 @@ import CryptoKit
 import SwiftyJSON
 import Combine
 
-extension BilibiliAPIService {
+extension APIClient {
 
     
     // MARK: - Live Stream APIs
@@ -65,7 +65,7 @@ extension BilibiliAPIService {
         let timestampJson = try await requestAPI(
             url: "https://api.bilibili.com/x/report/click/now",
             method: .GET,
-            headers: BilibiliConstants.header
+            headers: Constants.header
         )
         
         guard timestampJson["code"].intValue == 0 else {
@@ -75,9 +75,9 @@ extension BilibiliAPIService {
         let timestamp = timestampJson["data"]["now"].intValue
         
         // 2. 获取直播姬版本信息
-        var versionData = BilibiliConstants.versionData
+        var versionData = Constants.versionData
         versionData["ts"] = timestamp
-        let signedVersionData = AppSignManager.appSign(params: versionData, appKey: appKey, appSec: appSec)
+        let signedVersionData = AppSigner.appSign(params: versionData, appKey: appKey, appSec: appSec)
         
         let queryParts = signedVersionData.map { "\($0.key)=\($0.value)" }
         let query = queryParts.joined(separator: "&")
@@ -85,7 +85,7 @@ extension BilibiliAPIService {
         let versionJson = try await requestAPI(
             url: "https://api.live.bilibili.com/xlive/app-blink/v1/liveVersionInfo/getHomePageLiveVersion?\(query)",
             method: .GET,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             cookies: cookies
         )
         
@@ -94,7 +94,7 @@ extension BilibiliAPIService {
         }
         
         // 3. 开始直播
-        var startData = BilibiliConstants.startData
+        var startData = Constants.startData
         startData["room_id"] = roomId
         startData["csrf_token"] = csrfToken
         startData["csrf"] = csrfToken
@@ -103,12 +103,12 @@ extension BilibiliAPIService {
         startData["version"] = versionJson["data"]["curr_version"].stringValue
         startData["ts"] = timestamp
         
-        let signedStartData = AppSignManager.appSign(params: startData, appKey: appKey, appSec: appSec)
+        let signedStartData = AppSigner.appSign(params: startData, appKey: appKey, appSec: appSec)
         
         let startResponse = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Room/startLive",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: signedStartData,
             cookies: cookies
         )
@@ -162,7 +162,7 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.authenticationRequired
         }
         
-        var stopData = BilibiliConstants.stopData
+        var stopData = Constants.stopData
         stopData["room_id"] = roomId
         stopData["csrf_token"] = csrfToken
         stopData["csrf"] = csrfToken
@@ -170,7 +170,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Room/stopLive",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: stopData,
             cookies: cookies
         )
@@ -192,7 +192,7 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.authenticationRequired
         }
         
-        var idData = BilibiliConstants.idData
+        var idData = Constants.idData
         idData["room_id"] = roomId
         idData["csrf_token"] = csrfToken
         idData["csrf"] = csrfToken
@@ -201,7 +201,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Room/update",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: idData,
             cookies: cookies
         )
@@ -219,7 +219,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Area/getList?show_pinyin=1",
             method: .GET,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             cookies: cookies
         )
         
@@ -259,7 +259,7 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.authenticationRequired
         }
         
-        var updateData = BilibiliConstants.titleData
+        var updateData = Constants.titleData
         updateData["room_id"] = roomId
         updateData["title"] = title
         updateData["csrf_token"] = csrfToken
@@ -268,7 +268,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Room/update",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: updateData,
             cookies: cookies
         )
@@ -285,7 +285,7 @@ extension BilibiliAPIService {
             throw BilibiliAPIError.authenticationRequired
         }
         
-        var updateData = BilibiliConstants.idData
+        var updateData = Constants.idData
         updateData["room_id"] = roomId
         updateData["area_id"] = String(areaId)
         updateData["csrf_token"] = csrfToken
@@ -294,7 +294,7 @@ extension BilibiliAPIService {
         let response = try await requestAPI(
             url: "https://api.live.bilibili.com/room/v1/Room/update",
             method: .POST,
-            headers: BilibiliConstants.header,
+            headers: Constants.header,
             data: updateData,
             cookies: cookies
         )

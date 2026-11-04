@@ -1,5 +1,5 @@
 //
-//  BilibiliAPIService+User.swift
+//  APIClient+User.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -11,7 +11,7 @@ import CryptoKit
 import SwiftyJSON
 import Combine
 
-extension BilibiliAPIService {
+extension APIClient {
 
     
     // MARK: - User Info API

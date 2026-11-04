@@ -1,5 +1,5 @@
 //
-//  AvatarCacheManager.swift
+//  AvatarCache.swift
 //  BilibiliStreamHelper
 //
 //  Created by sosoorin on 2025/9/23.
@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Avatar Cache Manager
 
-class AvatarCacheManager {
+class AvatarCache {
     private static let cacheDirectory: URL = {
         let urls = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
         let cacheDir = urls[0].appendingPathComponent("AvatarCache")

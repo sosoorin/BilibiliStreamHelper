@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DanmakuView: View {
-    @StateObject private var apiService = BilibiliAPIService.shared
+    @StateObject private var apiService = APIClient.shared
     @State private var danmakuText = ""
     @State private var danmakuHistory: [DanmakuMessage] = []
     @State private var showSuccess = false
