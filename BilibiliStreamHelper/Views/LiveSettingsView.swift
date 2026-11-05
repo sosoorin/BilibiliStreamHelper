@@ -134,11 +134,17 @@ struct LiveSettingsView: View {
                     .animation(.easeInOut(duration: 0.15), value: vm.titleChanged)
                 }
                 
-                // 开播后在这里插入推流信息（原来「直播状态」卡片的位置）
-                if apiService.isLiveActive {
-                    StreamInfoView()
+                // 推流信息常驻，开播前显示空态，开播后直接换成地址和密钥
+                StreamInfoView()
+
+                VStack(spacing: 4) {
+                    Text("下播请点击工具栏的方块，OBS 停流不算下播。")
+                    Text("推流码每次开播需要重新取。")
                 }
-                
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
             }
         .onAppear {
             setupInitialValues()

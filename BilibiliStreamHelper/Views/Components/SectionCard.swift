@@ -50,6 +50,7 @@ struct SectionCard<Content: View, Trailing: View>: View {
             
             // 内容区不再重复铺背景：外层整卡已经是同一个颜色
             content()
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
         }
         .background(Color(NSColor.windowBackgroundColor))

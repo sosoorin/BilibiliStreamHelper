@@ -76,6 +76,7 @@ struct DanmakuView: View {
             Circle()
                 .fill(statusColor)
                 .frame(width: 7, height: 7)
+                .animation(.easeInOut(duration: 0.2), value: center.state)
             Text(statusText)
                 .font(.caption)
                 .foregroundColor(.secondary)
