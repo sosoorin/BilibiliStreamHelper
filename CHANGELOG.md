@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.0] - 2026-11-05
 
 ### ✨ 新增
 
@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🧹 其他
 - 发送成功的弹幕不再本地插一条，等服务器推回来，避免重复
 - 删掉「弹幕历史」卡片，发送记录并入聊天流
+- 发送前若未连接，会先连上再发
+
+**界面**
+- 开播/停播移到窗口工具栏，收起侧边栏不影响；图标按直播惯例换成红点和方块
+- 用户信息页按 macOS 设置页重做：Form 分组、左标签右值，去掉自绘卡片和彩色块
+- 登录页的「用户 ID」统一叫 UID，硬币保留一位小数
 
 ## [1.2.0] - 2026-11-05
 
