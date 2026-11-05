@@ -16,20 +16,19 @@ struct HelpGuideView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("怎么用")
                 .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                bullet("填好标题和分区，点右上角 ▶ 开播")
-                bullet("开播后下方出现推流地址和密钥，复制进 OBS")
-                bullet("下播点右上角 ■，不要在 OBS 里点「停止推流」")
-            }
-            
+
+            paragraph(
+                "看对方资料",
+                "鼠标停在用户名上，会弹出这个人的头像、粉丝牌和等级。"
+            )
+
+            paragraph(
+                "弹幕连接",
+                "切到「弹幕」页会自动连上当前直播间；断了点顶部状态重连。"
+            )
+
             Divider()
-            
-            Text("在 OBS 里停止推流只会断流，直播间还挂着。")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            
+
             HStack {
                 Spacer()
                 Button("关闭") { dismiss() }
@@ -37,15 +36,17 @@ struct HelpGuideView: View {
             }
         }
         .padding(18)
-        .frame(width: 300)
+        .frame(width: 340)
     }
-    
-    private func bullet(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text("•")
-                .foregroundColor(.secondary)
+
+    private func paragraph(_ title: String, _ text: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
             Text(text)
                 .font(.callout)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
