@@ -1,165 +1,88 @@
 <div align="center">
 <h1 align="center" style="margin-top: 0">BilibiliStreamHelper for macOS</h1>
 
-![Swift](https://img.shields.io/badge/Swift-6.0-orange)
+![Swift](https://img.shields.io/badge/Swift-6.4-orange)
 ![Platform](https://img.shields.io/badge/macOS-14.0+-green)
 ![License](https://img.shields.io/badge/License-Apache%202.0-red)
 ![Version](https://img.shields.io/badge/Version-v1.3.0-brightgreen)
-![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 
-使用 Swift 6 + SwiftUI 开发的哔哩哔哩直播推流码获取工具。
+Swift 6 + SwiftUI 写的哔哩哔哩直播推流码工具。
 
 </div>
 
 > 不能获取推流码后，官方提供的Mac开播方法实在是太难用了！！
 
-## ✨ 主要功能
+## 功能
 
-- 🔐 **双重登录方式**：扫码登录 / 手动Cookie登录
-- 📺 **直播管理**：设置标题、选择分区、开启/关闭直播
-- 🔄 **推流信息获取**：自动获取RTMP服务器地址和推流码
-- 💬 **弹幕收发**：实时接收弹幕、礼物、进场消息，应用内直接发送弹幕
+- 🔐 **双重登录方式**：扫码登录 / 手动 Cookie 登录
+- 📺 **直播管理**：设置标题、选择分区、开启 / 关闭直播
+- 🔄 **推流信息获取**：自动获取 RTMP 服务器地址和推流码
+- 💬 **弹幕收发**：进直播间自动连，收弹幕、礼物、进场，也能直接发
 - 📋 **便捷操作**：一键复制、配置导出
-- 🔒 **安全存储**：使用Keychain安全存储敏感信息
+- 🔒 **安全存储**：登录凭证存进 macOS Keychain，只留在本机；所有请求直连 B站 官方接口，不经过任何第三方服务器
 
-## ⚠️ 重要提醒
+## 声明
 
-- 本程序仅获取推流信息，使用官方API接口，**理论上**正常使用不会影响账号安全。
-- 使用前请确保遵守B站相关条款，使用风险由用户自行承担。
-- **请务必使用本程序停止直播**（OBS停止推流≠B站下播）。
-- 推流码一次性使用，每次直播需重新获取。
+**本程序仅用于学习和交流，使用前请确保遵守 B站 相关条款，使用风险由用户自行承担。**
 
-## 🚀 快速开始
+## 下载
 
-### 📦 下载使用
+去 [Releases](https://github.com/sosoorin/BilibiliStreamHelper/releases) 下 `BilibiliStreamHelper-vX.X.X-macos.dmg`，拖进「应用程序」。
 
-#### 方式一：下载预编译版本（推荐）
-1. 访问 [Releases 页面](https://github.com/sosoorin/BilibiliStreamHelper/releases)
-2. 下载最新的 `BilibiliStreamHelper-vX.X.X-macos.dmg`
-3. 双击安装，拖拽到应用程序文件夹
+系统要求 macOS 14+。
 
-#### 方式二：从源码构建
+## 从源码构建
+
 ```bash
-# 克隆仓库
 git clone https://github.com/sosoorin/BilibiliStreamHelper.git
 cd BilibiliStreamHelper
-
-# 安装依赖并构建
 make dev-setup
 make build
-
-# 或直接用 Xcode 打开
-make open
 ```
 
-### 系统要求
-- **运行**: macOS 14.0+
-- **开发**: macOS 14.0+ + Xcode 27.0+
+需要 Xcode 27+，`make open` 直接用 Xcode 打开。推 `v*` 标签会自动构建 DMG / ZIP 发版。
 
-### 使用流程
-1. **登录** → 扫码或手动输入Cookie
-2. **设置** → 输入标题，选择分区
-3. **开播** → 获取推流信息
-4. **OBS** → 配置服务器地址和推流码
+## 使用
 
-## 🏗️ 技术栈
+1. 登录（扫码或 Cookie）
+2. 填标题、选分区
+3. 开播，拿到推流码
+4. 填进 OBS
+5. 切到「弹幕」页看实时弹幕
 
-### 核心技术
-- **Swift 6** + **SwiftUI** - 现代化界面
-- **Keychain** - 安全存储
+## 注意
 
-### 开发工具链
-- **Xcode 27.0** - 最新开发环境
-- **GitHub Actions** - 自动化CI/CD流程
-- **SwiftyJSON** - JSON数据解析
-- **语义化版本管理** - 规范的版本控制
+- **必须用本程序停播**，OBS 断流不等于 B站 下播
+- 推流码是一次性的，每次开播都要重新取
 
-## 🛠️ 开发者指南
+## 常见问题
 
-<details>
-<summary><strong>🚀 快速开始</strong></summary>
+二维码过期就重新生成一张；登录状态失效，重新登一次就好。
 
-```bash
-# 克隆项目
-git clone https://github.com/your-username/BilibiliLiveStremCodeSwift.git
-cd BilibiliLiveStremCodeSwift
+开播失败多半是分区没选对，或者账号没有那个分区的开播资质。
 
-# 环境设置
-make dev-setup
+遇到人脸认证按界面提示走，手机上用 B站 App 扫一下。
 
-# 构建运行
-make build
-```
+弹幕连不上、提示风控，是短时间内请求太多被限了，隔半分钟再点连接。
 
-</details>
+## AI 辅助开发声明
 
-<details>
-<summary><strong>📦 发布流程</strong></summary>
+本项目在开发过程中使用了 AI 工具辅助，包括代码与文档的起草、界面方案讨论和问题排查。
 
-```bash
-# 版本管理
-make bump-patch   # 1.0.0 → 1.0.1
-make bump-minor   # 1.0.0 → 1.1.0  
-make bump-major   # 1.0.0 → 2.0.0
+## 致谢
 
-# 自动发布
-make release      # 创建 GitHub Release
-```
+功能思路参考 [ChaceQC/bilibili_live_stream_code](https://github.com/ChaceQC/bilibili_live_stream_code)。
+依赖 [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)、Apple CryptoKit 和系统 Compression。
 
-**自动化特性**：推送标签后自动构建 DMG/ZIP 安装包
+## 许可
 
-</details>
-
-<details>
-<summary><strong>🤝 参与贡献</strong></summary>
-
-1. **Fork** 本仓库
-2. **创建分支**: `git checkout -b feature/new-feature`
-3. **提交代码**: `git commit -m "Add new feature"`
-4. **推送分支**: `git push origin feature/new-feature`
-5. **提交 PR**: 创建 Pull Request
-
-**文档参考**: [CI/CD 指南](CICD_QUICKSTART.md) | [详细文档](docs/CI_CD_SETUP.md)
-
-</details>
-
-## 🐛 常见问题
-
-- **二维码过期** → 重新生成
-- **Cookie失效** → 重新登录
-- **开播失败** → 检查分区设置
-- **人脸认证** → 用手机客户端扫码
-- **构建失败** → 检查Xcode版本和依赖
-
-## 🤖 AI辅助开发声明
-
-本项目在开发过程中使用了AI工具辅助，包括但不限于代码/文档生成、优化建议和问题解决。
-
-
-## 贡献者
-
-![cr](https://contrib.rocks/image?repo=sosoorin/BilibiliStreamHelper)
-
-## 📄 许可证
-
- [Apache License 2.0](./LICENSE)
-
-## 🙏 致谢
-
-**功能思路参考**
-- [ChaceQC/bilibili_live_stream_code](https://github.com/ChaceQC/bilibili_live_stream_code)
-
-**技术依赖**
-- [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON) - JSON解析
-- [Apple CryptoKit](https://developer.apple.com/documentation/cryptokit) - 加密算法
-- [SocialSisterYi/bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) - API文档参考
+[Apache License 2.0](./LICENSE)
 
 ---
-
 <div align="center">
 
-**如果有帮助请给个 ⭐️ Star！**
+**觉得有用就给个 ⭐️**
 
-[问题反馈](https://github.com/sosoorin/BilibiliStreamHelper/issues) • [功能建议](https://github.com/sosoorin/BilibiliStreamHelper/issues)
+[问题反馈](https://github.com/sosoorin/BilibiliStreamHelper/issues) · [功能建议](https://github.com/sosoorin/BilibiliStreamHelper/issues)
 
 </div>
