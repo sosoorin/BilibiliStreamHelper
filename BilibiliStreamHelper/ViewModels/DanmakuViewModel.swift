@@ -8,7 +8,10 @@
 import Combine
 import Foundation
 
-/// 「弹幕」页的发送流程与历史记录。
+/// 「弹幕」页的发送流程。
+///
+/// 收弹幕不在这里——连接挂在 `DanmakuCenter` 上，切页也不会断。
+/// 发送成功后不本地插一条，靠服务器把 `DANMU_MSG` 推回来，免得自己发的出现两条。
 @MainActor
 final class DanmakuViewModel: ObservableObject {
     
@@ -19,10 +22,8 @@ final class DanmakuViewModel: ObservableObject {
     }
     
     @Published var danmakuText = ""
-    @Published var danmakuHistory: [DanmakuMessage] = []
     @Published var isSending = false
     
-    @Published var showSuccess = false
     @Published var showError = false
     @Published var errorMessage = ""
     
@@ -36,13 +37,7 @@ final class DanmakuViewModel: ObservableObject {
         do {
             try await api.sendBullet(message: text)
             danmakuText = ""
-            danmakuHistory.append(DanmakuMessage(content: text, timestamp: Date(), isSuccess: true))
-            showSuccess = true
         } catch {
-            danmakuHistory.append(
-                DanmakuMessage(content: text, timestamp: Date(), isSuccess: false,
-                               errorMessage: error.localizedDescription)
-            )
             errorMessage = error.localizedDescription
             showError = true
         }
