@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### ✨ 新增
+
+**实时弹幕**
+- 弹幕页接上直播间 WebSocket：进页面自动连，切页不断，退出登录断开
+- 收普通弹幕、礼物、连击、进场/关注/分享、进场特效
+- 断线指数退避重连（5s → 60s），认证失败不再空转重连
+- 顶部显示连接状态和人气值，可手动断开/重连
+- 聊天流保留最近 200 条，自动滚动可关
+- 鼠标停在用户名上弹出小卡片：头像、UID、粉丝牌、大航海、用户等级和荣耀等级
+- 历史弹幕和实时弹幕之间有一条分隔线
+- 弹幕按发送者选的颜色显示，亮色自动退回主文字色
+
+### 🧹 其他
+- 发送成功的弹幕不再本地插一条，等服务器推回来，避免重复
+- 删掉「弹幕历史」卡片，发送记录并入聊天流
+
 ## [1.2.0] - 2026-11-05
 
 界面上的一次大改：把原来分散在几个页面里的功能收成两条主线，操作集中到工具栏。
