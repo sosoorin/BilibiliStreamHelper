@@ -23,21 +23,16 @@ struct LoginView: View {
     
     var body: some View {
         VStack(spacing: 30) {
-            // 标题
-            VStack(spacing: 8) {
-                Image(systemName: "tv.and.mediabox")
-                    .font(.system(size: 50))
-                    .foregroundColor(.blue)
-                
-                Text("B站推流码获取工具")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                Text("快速获取B站直播推流码")
-                    .font(.caption)
+            // 标题：macOS 的登录界面是左对齐的表单，不是居中的欢迎页
+            VStack(alignment: .leading, spacing: 4) {
+                Text("B站直播助手")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Text("快速获取 B 站直播推流码")
+                    .font(.callout)
                     .foregroundColor(.secondary)
             }
-            .padding(.top, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             // 根据是否有保存的登录信息和强制显示状态决定界面
             if let savedLoginInfo = apiService.getSavedLoginInfoFull(), !savedLoginInfo.userName.isEmpty, !vm.forceShowLoginInterface {
@@ -48,10 +43,9 @@ struct LoginView: View {
                 newUserLoginView()
             }
             
-            Spacer()
-            
         }
-        .padding()
+        .padding(24)
+        .frame(width: 408)
         .onAppear {
             // 测试宿主里不要启动登录流程：会发真实网络请求
             guard !AppEnvironment.isRunningTests else { return }
@@ -72,10 +66,9 @@ struct LoginView: View {
     // MARK: - 视图组件
     
     private func savedUserLoginView(loginInfo: LoginInfo) -> some View {
-        VStack(spacing: 30) {
-            // 大尺寸头像和用户信息
-            VStack(spacing: 20) {
-                // 头像
+        VStack(alignment: .leading, spacing: 16) {
+            // 账号信息就是信息，不做成可点区域
+            HStack(spacing: 12) {
                 AsyncImage(url: URL(string: loginInfo.userAvatar)) { image in
                     image
                         .resizable()
@@ -84,62 +77,45 @@ struct LoginView: View {
                     Image(systemName: "person.circle.fill")
                         .foregroundColor(.gray)
                 }
-                .frame(width: 120, height: 120)
+                .frame(width: 48, height: 48)
                 .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color.blue.opacity(0.3), lineWidth: 3)
-                )
                 
-                // 用户信息
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(loginInfo.userName)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text("用户ID: \(loginInfo.userId)")
-                        .font(.subheadline)
+                        .font(.headline)
+                    Text("用户 ID \(loginInfo.userId)")
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
             
-            // 登录按钮
-            VStack(spacing: 15) {
-                Button("自动登录") {
-                    Task {
-                        await vm.autoLogin()
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .frame(maxWidth: 200)
-                
-                Button("重新登录") {
-                    // 退出登录并切换到扫码登录页面
-                    apiService.logout()
-                    vm.showManualLogin = false  // 默认显示扫码登录
-                    vm.forceShowLoginInterface = true
-                    
-                    // 刷新二维码
-                    Task {
-                        await vm.generateQRCode()
-                    }
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
-                .frame(maxWidth: 200)
-                .foregroundColor(.red)
-            }
-            
-            // 上次登录时间
             if let savedDate = apiService.getLoginInfoSavedDate() {
-                Text("上次登录: \(savedDate, formatter: dateFormatter)")
+                Text("上次登录 \(savedDate, formatter: dateFormatter)")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                    .padding(.top, 20)
+            }
+            
+            // 对话框的惯例：主按钮在右下，次要按钮在它左边
+            HStack(spacing: 10) {
+                Spacer()
+                
+                Button("切换账号") {
+                    // 不动已保存的凭据：新账号登录成功后会自动覆盖，
+                    // 中途放弃的话原来的账号还在。
+                    vm.showManualLogin = false
+                    vm.forceShowLoginInterface = true
+                    Task { await vm.generateQRCode() }
+                }
+                .buttonStyle(.bordered)
+                
+                Button("继续") {
+                    Task { await vm.autoLogin() }
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
             }
         }
-        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func newUserLoginView() -> some View {
@@ -155,7 +131,6 @@ struct LoginView: View {
                     
                     Spacer()
                 }
-                .padding(.horizontal)
             }
             
             // 登录方式切换
@@ -164,8 +139,8 @@ struct LoginView: View {
                 Text("手动输入").tag(true)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .onChange(of: vm.showManualLogin) { newValue in
+            .labelsHidden()
+            .onChange(of: vm.showManualLogin) { _, newValue in
                 if newValue {
                     // 切换到手动登录时停止二维码轮询
                     vm.stopPolling()
@@ -343,7 +318,8 @@ struct LoginView: View {
                             .foregroundColor(.blue)
                             .help("Cookie获取详细步骤：\n1. 在直播间右键点击页面，选择\"检查\"打开开发者工具\n2. 切换到\"网络\"(Network)标签\n3. 发送一条弹幕触发网络请求\n4. 在请求列表中找到\"send\"请求并点击\n5. 在右侧面板找到\"请求标头\"(Request Headers)\n6. 找到\"Cookie:\"字段，复制冒号后面的完整内容\n\n注意：Cookie内容很长，包含多个键值对，请完整复制")
                     }
-                    TextField("请输入完整的Cookie字符串", text: $vm.manualCookies)
+                    // Cookie 里含 SESSDATA，属于凭据，按 HIG 用安全输入框
+                    SecureField("请输入完整的Cookie字符串", text: $vm.manualCookies)
                         .textFieldStyle(.roundedBorder)
                 }
                 
@@ -358,7 +334,8 @@ struct LoginView: View {
                             .foregroundColor(.blue)
                             .help("CSRF Token获取详细步骤：\n1. 在同一个\"send\"请求中，切换到下方的\"负载\"(Payload)标签\n2. 在\"表单数据\"(Form Data)部分查找\n3. 找到\"csrf\"或\"bili_jct\"字段\n4. 复制该字段对应的值（通常是32位随机字符串）\n\n注意：csrf和bili_jct是同一个值的不同名称，找到其中任何一个即可")
                     }
-                    TextField("请输入bili_jct的值", text: $vm.manualCSRF)
+                    // CSRF token 同样是凭据
+                    SecureField("请输入bili_jct的值", text: $vm.manualCSRF)
                         .textFieldStyle(.roundedBorder)
                 }
             }
@@ -375,7 +352,6 @@ struct LoginView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                .padding(.horizontal)
             }
         }
     }
