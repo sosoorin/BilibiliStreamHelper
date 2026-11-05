@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-11-05
+
+### ✨ 改进
+
+**推流信息**
+- 卡片常驻，开播前显示占位、开播后就地换成地址和密钥，页面高度不再跳
+- 推流码默认打码，点旁边的眼睛看明文
+- 复制按钮常驻，没开播时隐藏，避免撑高行高
+
+**界面**
+- 「下播用方块」和「推流码一次性」两条提醒移到页面底部，不再单独占一张卡片
+- 使用说明只留界面上看不出来的操作，删掉开播下播的基础步骤
+- 弹幕连接状态切换加了 0.2 秒过渡
+
 ## [1.3.0] - 2026-11-05
 
 ### ✨ 新增
