@@ -2,7 +2,7 @@
 <h1 align="center" style="margin-top: 0">BilibiliStreamHelper for macOS</h1>
 
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
-![Platform](https://img.shields.io/badge/macOS-13.0+-green)
+![Platform](https://img.shields.io/badge/macOS-14.0+-green)
 ![License](https://img.shields.io/badge/License-Apache%202.0-red)
 ![Version](https://img.shields.io/badge/Version-v1.1.2-brightgreen)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
@@ -53,8 +53,8 @@ make open
 ```
 
 ### 系统要求
-- **运行**: macOS 13.0+
-- **开发**: macOS 13.0+ + Xcode 27.0+
+- **运行**: macOS 14.0+
+- **开发**: macOS 14.0+ + Xcode 27.0+
 
 ### 使用流程
 1. **登录** → 扫码或手动输入Cookie
