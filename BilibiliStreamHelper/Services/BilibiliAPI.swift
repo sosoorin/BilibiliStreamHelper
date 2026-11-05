@@ -21,6 +21,8 @@ protocol BilibiliAPI: AnyObject {
     var userInfo: UserInfo? { get }
     var currentRoomId: String { get }
     var hasLoadedInitialLiveInfo: Bool { get set }
+    var isLiveActive: Bool { get }
+    var isLoggedIn: Bool { get }
     
     // MARK: - 登录
     
@@ -36,7 +38,8 @@ protocol BilibiliAPI: AnyObject {
     
     func getPartitions() async throws -> [LivePartition]
     func getLiveRoomInfo() async throws -> LiveInfo
-    func updateLiveTitle(_ title: String) async throws
+    /// 返回服务端确认后的标题（B站 会把新标题送审，回包里的 audit_title 才是生效值）
+    func updateLiveTitle(_ title: String) async throws -> String
     func updateLiveArea(_ areaId: Int) async throws
     func startLive(areaId: Int) async throws -> StreamInfo
     func stopLive() async throws

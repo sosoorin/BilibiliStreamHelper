@@ -38,7 +38,7 @@ extension APIClient {
         
         // 获取用户信息
         let userInfo = try await getUserInfo()
-        let userStats = try await getUserStats()
+        _ = try await getUserStats()
         
         // 手动登录时，使用用户输入的roomId，不使用自动获取的
         self.roomId = roomId
@@ -253,7 +253,7 @@ extension APIClient {
         // 获取用户信息和统计信息
         do {
             let userInfo = try await getUserInfo()
-            let userStats = try await getUserStats()
+            _ = try await getUserStats()
             AppLog.auth.debug("用户信息获取成功，登录验证通过")
             
             // 构建cookie字符串

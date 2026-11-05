@@ -12,6 +12,8 @@ final class FakeAPI: BilibiliAPI {
     var userInfo: UserInfo?
     var currentRoomId: String = ""
     var hasLoadedInitialLiveInfo = false
+    var isLiveActive = false
+    var isLoggedIn = false
     
     // MARK: 桩
     
@@ -63,12 +65,28 @@ final class FakeAPI: BilibiliAPI {
     
     func getLiveRoomInfo() async throws -> LiveInfo { try getLiveRoomInfoResult.get() }
     
-    func updateLiveTitle(_ title: String) async throws {
+    func updateLiveTitle(_ title: String) async throws -> String {
         updateTitleCalls.append(title)
         if let updateTitleError { throw updateTitleError }
+        return title
     }
     
-    func updateLiveArea(_ areaId: Int) async throws {}
+    func updateLiveArea(_ areaId: Int) async throws {
+        // 模拟服务端：更新后重新拉取能拿到新的 areaId
+        if let info = liveInfo {
+            let updated = LiveInfo(
+                roomId: info.roomId,
+                title: info.title,
+                areaId: areaId,
+                areaName: info.areaName,
+                parentAreaId: info.parentAreaId,
+                parentAreaName: info.parentAreaName,
+                liveStatus: info.liveStatus
+            )
+            liveInfo = updated
+            getLiveRoomInfoResult = .success(updated)
+        }
+    }
     
     func startLive(areaId: Int) async throws -> StreamInfo {
         startLiveCalls.append(areaId)

@@ -7,6 +7,7 @@
 
 import Foundation
 import CryptoKit
+import os
 import SwiftyJSON
 import Combine
 
@@ -243,7 +244,7 @@ extension APIClient {
     // MARK: - Live Settings API
     
     /// 更新直播间标题
-    func updateLiveTitle(_ title: String) async throws {
+    func updateLiveTitle(_ title: String) async throws -> String {
         guard !roomId.isEmpty, !csrfToken.isEmpty else {
             throw BilibiliAPIError.authenticationRequired
         }
@@ -263,6 +264,15 @@ extension APIClient {
         )
         
         try throwIfFailed(response)
+        
+        // B站 改标题会先进审核，回包里的 audit_title 是送审的那一份；
+        // 房间信息接口在这期间仍返回旧标题，所以以回包为准
+        let auditTitle = response["data"]["audit_info"]["audit_title"].stringValue
+        let reason = response["data"]["audit_info"]["audit_title_reason"].stringValue
+        if !reason.isEmpty {
+            AppLog.live.debug("标题进入审核: \(reason, privacy: .public)")
+        }
+        return auditTitle.isEmpty ? title : auditTitle
     }
 
     

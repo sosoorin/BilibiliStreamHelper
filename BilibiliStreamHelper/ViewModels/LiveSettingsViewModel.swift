@@ -23,21 +23,83 @@ final class LiveSettingsViewModel: ObservableObject {
         self.api = api
     }
     
+    // MARK: - 表单状态（用户在填什么）
+    
+    @Published var liveTitle = "我的直播间"
+    @Published var selectedMainArea: LivePartition?
+    @Published var selectedSubArea: LiveSubPartition?
+    
     // MARK: - 流程状态
     
-    @Published var isLoading = false
+    /// 正在进行的是哪件事——按钮各自显示自己的转圈，而不是整页蒙一层
+    enum Activity {
+        case refresh
+        case startLive
+        case stopLive
+        case updateTitle
+        case updateArea
+    }
+    
+    @Published private(set) var activity: Activity?
     @Published var isLoadingInitialData = false
+    
+    var isLoading: Bool { activity != nil }
     
     @Published var errorTitle = "操作失败"
     @Published var errorMessage = ""
     @Published var showError = false
     
-    @Published var successMessage = ""
-    @Published var showSuccess = false
-    
     @Published var showNavigationConfirm = false
     @Published var showFaceVerification = false
     @Published var faceVerificationQRImage: NSImage?
+    
+    // MARK: - 表单是否有改动
+    
+    /// 标题和已经保存在服务端的值不一样（没加载过时算有改动）
+    var titleChanged: Bool {
+        guard let saved = api.liveInfo?.title else { return !liveTitle.isEmpty }
+        return liveTitle != saved
+    }
+    
+    /// 选中的分区和已经保存在服务端的值不一样
+    var areaChanged: Bool {
+        guard let savedArea = api.liveInfo?.areaId else { return selectedSubArea != nil }
+        return selectedSubArea?.id != savedArea
+    }
+    
+    // MARK: - 主操作
+    
+    /// 现在能不能开播；不能的话 reason 说明缺什么
+    var startBlockedReason: String? {
+        if api.isLiveActive { return nil }
+        if liveTitle.trimmingCharacters(in: .whitespaces).isEmpty { return "请先填写直播标题" }
+        if selectedSubArea == nil { return "请先选择直播分区" }
+        return nil
+    }
+    
+    var canStartLive: Bool {
+        !api.isLiveActive && startBlockedReason == nil && !isLoading
+    }
+    
+    /// 用当前表单里的标题和分区开播
+    func startLiveWithCurrentSelection() async {
+        guard let areaId = selectedSubArea?.id else { return }
+        await startLive(title: liveTitle, areaId: areaId)
+    }
+    
+    /// 把房间信息回填到表单（主分区由 areaId 反查）
+    func applyLiveInfo(_ info: LiveInfo) {
+        liveTitle = info.title
+        
+        guard let main = api.partitions.first(where: { partition in
+            partition.list?.contains(where: { $0.id == info.areaId }) == true
+        }), let sub = main.list?.first(where: { $0.id == info.areaId }) else {
+            AppLog.live.debug("未找到匹配的分区，areaId: \(info.areaId, privacy: .public)")
+            return
+        }
+        selectedMainArea = main
+        selectedSubArea = sub
+    }
     
     // MARK: - 读取
     
@@ -49,7 +111,7 @@ final class LiveSettingsViewModel: ObservableObject {
         
         do {
             if api.partitions.isEmpty {
-                try await api.getPartitions()
+                _ = try await api.getPartitions()
             }
             return try await api.getLiveRoomInfo()
         } catch {
@@ -60,32 +122,42 @@ final class LiveSettingsViewModel: ObservableObject {
     
     // MARK: - 操作
     
-    func refreshPartitions() async {
-        await perform(success: "分区列表刷新成功") {
-            try await api.getPartitions()
+    /// 一次刷新：分区列表 + 房间信息，并把结果回填到表单。
+    /// 分区会增删，房间信息可能在别处（手机端）改过，分开刷容易只刷到一半。
+    func refreshAll() async {
+        activity = .refresh
+        defer { activity = nil }
+        
+        do {
+            _ = try await api.getPartitions()
+            let info = try await api.getLiveRoomInfo()
+            applyLiveInfo(info)
+        } catch {
+            present(error)
         }
     }
     
     func updateTitle(_ title: String) async {
-        await perform(success: "直播标题更新成功") {
-            try await api.updateLiveTitle(title)
-            applyTitle(title)
+        await perform(.updateTitle) {
+            let applied = try await api.updateLiveTitle(title)
+            updateLocalLiveInfo(title: applied)
         }
     }
     
     func updateArea(areaId: Int) async {
-        await perform(success: "直播分区更新成功") {
+        await perform(.updateArea) {
             try await api.updateLiveArea(areaId)
+            updateLocalLiveInfo(areaId: areaId)
         }
     }
     
     func startLive(title: String, areaId: Int) async {
-        isLoading = true
-        defer { isLoading = false }
+        activity = .startLive
+        defer { activity = nil }
         
         // 标题是附带操作：失败只记日志，不阻塞开播
         do {
-            try await api.updateLiveTitle(title)
+            _ = try await api.updateLiveTitle(title)
         } catch {
             AppLog.live.warning("开播前更新标题失败，继续开播: \(error.localizedDescription, privacy: .public)")
         }
@@ -99,39 +171,44 @@ final class LiveSettingsViewModel: ObservableObject {
     }
     
     func stopLive() async {
-        await perform(success: "直播已停止") {
+        await perform(.stopLive) {
             try await api.stopLive()
         }
     }
     
     // MARK: - 私有
     
-    /// 统一的「忙 → 执行 → 成功/失败」包装，省掉每个操作重复的 isLoading 开关
-    private func perform(success message: String, _ work: () async throws -> Void) async {
-        isLoading = true
-        defer { isLoading = false }
+    /// 统一的「忙 → 执行 → 失败提示」包装。
+    /// 成功不弹窗：界面本身会变（标题回填、状态切换），再弹一次是噪音。
+    private func perform(_ kind: Activity, _ work: () async throws -> Void) async {
+        activity = kind
+        defer { activity = nil }
         
         do {
             try await work()
-            successMessage = message
-            showSuccess = true
+
         } catch {
             present(error)
         }
     }
     
-    private func applyTitle(_ title: String) {
+    /// 提交成功后只在本地改这一项，不立刻重拉。
+    /// 房间信息接口有缓存，刚提交完马上拉大概率还是旧值，反而把界面改回去。
+    private func updateLocalLiveInfo(title: String? = nil, areaId: Int? = nil) {
         guard let info = api.liveInfo else { return }
+        let main = selectedMainArea
+        let sub = selectedSubArea
         api.liveInfo = LiveInfo(
             roomId: info.roomId,
-            title: title,
-            areaId: info.areaId,
-            areaName: info.areaName,
-            parentAreaId: info.parentAreaId,
-            parentAreaName: info.parentAreaName,
+            title: title ?? info.title,
+            areaId: areaId ?? info.areaId,
+            areaName: areaId != nil ? (sub?.name ?? info.areaName) : info.areaName,
+            parentAreaId: areaId != nil ? (main?.id ?? info.parentAreaId) : info.parentAreaId,
+            parentAreaName: areaId != nil ? (main?.name ?? info.parentAreaName) : info.parentAreaName,
             liveStatus: info.liveStatus
         )
     }
+    
     
     private func present(_ error: Error) {
         guard let apiError = error as? BilibiliAPIError else {

@@ -94,13 +94,36 @@ struct LiveSettingsViewModelTests {
         #expect(vm.showError)
     }
     
-    @Test func stopLiveSuccessShowsToastMessage() async {
+    /// 成功不弹窗：停播成功后只要求没有错误提示
+    @Test func stopLiveSuccessShowsNoAlert() async {
         let (vm, _) = makeVM()
         
         await vm.stopLive()
         
-        #expect(vm.successMessage == "直播已停止")
-        #expect(vm.showSuccess)
+        #expect(!vm.showError)
+    }
+    
+    /// 更新分区成功后，本地要同步成服务端的值，按钮才会变回「没改动」
+    @Test func updateAreaSyncsLocalState() async {
+        let (vm, api) = makeVM()
+        api.liveInfo = LiveInfo(
+            roomId: 1,
+            title: "标题",
+            areaId: 100,
+            areaName: "旧分区",
+            parentAreaId: 10,
+            parentAreaName: "旧主分区",
+            liveStatus: 0
+        )
+        let main = LivePartition(id: 20, name: "新主分区", list: [])
+        vm.selectedMainArea = main
+        vm.selectedSubArea = LiveSubPartition(id: 200, name: "新分区")
+        #expect(vm.areaChanged)
+        
+        await vm.updateArea(areaId: 200)
+        
+        #expect(!vm.areaChanged)
+        #expect(api.liveInfo?.areaId == 200)
     }
 }
 
@@ -151,7 +174,7 @@ struct LoginViewModelTests {
         #expect(vm.qrCodeImage != nil)
     }
     
-    /// 保存的凭据失效：清登录态、提示、回到登录界面
+    /// 保存的凭据失效：提示并回到登录界面，但不自动删除本地凭据
     @Test func expiredCredentialsResetToLoginUI() async {
         let (vm, api) = makeVM()
         api.loadSavedLoginError = BilibiliAPIError.authenticationRequired
@@ -159,8 +182,9 @@ struct LoginViewModelTests {
         
         await vm.autoLogin()
         
-        #expect(api.logoutCount >= 1)
         #expect(vm.forceShowLoginInterface)
         #expect(vm.showError)
+        // 钥匙串读失败和真的过期看起来一样，一次失败就删凭据代价太大
+        #expect(api.logoutCount == 0)
     }
 }

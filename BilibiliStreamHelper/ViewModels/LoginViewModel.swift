@@ -206,8 +206,8 @@ final class LoginViewModel: ObservableObject {
             try await api.loadSavedLogin()
         } catch {
             if let apiError = error as? BilibiliAPIError, case .authenticationRequired = apiError {
-                // 保存的凭据已失效：清掉并回到登录界面
-                api.logout()
+                // 只提示，不自动删除：钥匙串读失败、网络抖动都可能表现成这个错误，
+                // 一次失败就把用户的登录信息抹掉，代价太大。真要清由用户点「切换账号」。
                 errorMessage = "登录信息已过期，请重新登录"
                 showError = true
                 forceShowLoginInterface = true

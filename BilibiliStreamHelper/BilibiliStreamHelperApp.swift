@@ -13,6 +13,12 @@ struct BilibiliLiveStremCodeSwiftApp: App {
         WindowGroup {
             RootView()
         }
-        .windowStyle(.hiddenTitleBar) // macOS上隐藏标题栏，iOS上无效果
+        .commands {
+            CommandGroup(replacing: .help) {
+                Button("B站直播助手 使用说明") {
+                    HelpCenter.shared.show()
+                }
+            }
+        }
     }
 }

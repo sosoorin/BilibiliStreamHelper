@@ -10,16 +10,14 @@ import AppKit
 
 // MARK: - 侧边栏菜单项
 enum SidebarItem: String, CaseIterable, Identifiable {
-    case liveSettings = "直播设置"
-    case streamInfo = "推流信息"
-    case danmaku = "弹幕发送"
+    case live = "直播"
+    case danmaku = "弹幕"
     
     var id: String { rawValue }
     
     var icon: String {
         switch self {
-        case .liveSettings: return "tv"
-        case .streamInfo: return "dot.radiowaves.left.and.right"
+        case .live: return "tv"
         case .danmaku: return "message"
         }
     }
@@ -28,7 +26,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 struct MainView: View {
     @StateObject private var apiService = APIClient.shared
     @StateObject private var vm = MainViewModel()
-    @State private var selectedItem: SidebarItem = .liveSettings
+    @State private var selectedItem: SidebarItem = .live
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     
     var body: some View {
@@ -42,6 +40,7 @@ struct MainView: View {
                 .frame(minWidth: 600)
         }
         .navigationSplitViewStyle(.balanced)
+        .navigationTitle("B站直播助手")
         .onAppear {
             Task { await vm.prefetchPartitions() }
         }
@@ -55,21 +54,6 @@ struct SidebarView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部标题
-            HStack {
-                Text("B站直播助手")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 10)
-            
-            Divider()
-                .padding(.horizontal, 16)
-            
             // 主要功能菜单
             VStack(spacing: 0) {
                 
@@ -244,20 +228,20 @@ struct DetailView: View {
     @Binding var selectedSidebarItem: SidebarItem
     
     var body: some View {
-        Group {
-            switch selectedItem {
-            case .liveSettings:
-                LiveSettingsView(onNavigateToStreamInfo: {
-                    selectedSidebarItem = .streamInfo
-                })
-            case .streamInfo:
-                StreamInfoView()
-            case .danmaku:
-                DanmakuView()
+        // 详情栏套一层 NavigationStack，工具栏项才会按 macOS 惯例排到右侧；
+        // 直接挂在 NavigationSplitView 的 detail 上会全部挤到左边。
+        NavigationStack {
+            Group {
+                switch selectedItem {
+                case .live:
+                    LivePageView()
+                case .danmaku:
+                    DanmakuView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(NSColor.textBackgroundColor))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.textBackgroundColor))
     }
 }
 
