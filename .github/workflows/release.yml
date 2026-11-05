@@ -112,6 +112,11 @@ jobs:
         # Copy app to temp directory
         cp -R "$APP_PATH" "$DMG_TEMP_DIR/"
         
+        # 放一个指向 /Applications 的软链，用户可以拖进去安装
+        ln -s /Applications "$DMG_TEMP_DIR/Applications"
+        
+        # 加一个背景和窗口布局的话需要写 AppleScript，这里先用系统默认排布
+        
         # Create DMG
         hdiutil create -volname "$APP_NAME $VERSION" \
           -srcfolder "$DMG_TEMP_DIR" \
