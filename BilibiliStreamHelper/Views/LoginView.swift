@@ -83,7 +83,7 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(loginInfo.userName)
                         .font(.headline)
-                    Text("用户 ID \(loginInfo.userId)")
+                    Text("UID \(loginInfo.userId)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -215,7 +215,7 @@ struct LoginView: View {
                             .font(.headline)
                             .fontWeight(.bold)
                         
-                        Text("用户ID: \(loginInfo.userId)")
+                        Text("UID: \(loginInfo.userId)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

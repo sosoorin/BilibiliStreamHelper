@@ -28,7 +28,7 @@ struct MainView: View {
     @StateObject private var vm = MainViewModel()
     @State private var selectedItem: SidebarItem = .live
     @State private var columnVisibility = NavigationSplitViewVisibility.all
-    
+
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             // 侧边栏
@@ -209,8 +209,6 @@ struct UserInfoCard: View {
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showUserDetail) {
             UserDetailView(userInfo: userInfo, onLogout: logout)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
         }
     }
     
@@ -226,6 +224,12 @@ struct UserInfoCard: View {
 struct DetailView: View {
     let selectedItem: SidebarItem
     @Binding var selectedSidebarItem: SidebarItem
+
+    // 开播/停播是窗口级的操作，跟当前停在哪一页无关，
+    // 所以放在工具栏——收起侧边栏也不影响。
+    @StateObject private var liveVM = LiveSettingsViewModel()
+    @StateObject private var apiService = APIClient.shared
+    @State private var confirmStop = false
     
     var body: some View {
         // 详情栏套一层 NavigationStack，工具栏项才会按 macOS 惯例排到右侧；
@@ -234,13 +238,61 @@ struct DetailView: View {
             Group {
                 switch selectedItem {
                 case .live:
-                    LivePageView()
+                    LivePageView(vm: liveVM)
                 case .danmaku:
                     DanmakuView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(NSColor.textBackgroundColor))
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    liveActionButton
+                }
+            }
+            .alert("确定要停止直播吗？", isPresented: $confirmStop) {
+                Button("取消", role: .cancel) { }
+                Button("停止直播", role: .destructive) {
+                    Task { await liveVM.stopLive() }
+                }
+            } message: {
+                Text("停止后推流会立刻中断，OBS 那边也会断开。")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var liveActionButton: some View {
+        if apiService.isLiveActive {
+            Button { confirmStop = true } label: {
+                ZStack {
+                    Image(systemName: "stop.fill")
+                        .foregroundStyle(.red)
+                        .opacity(liveVM.activity == .stopLive ? 0 : liveVM.isLoading ? 0.35 : 1)
+                    ProgressView()
+                        .controlSize(.small)
+                        .opacity(liveVM.activity == .stopLive ? 1 : 0)
+                }
+            }
+            .disabled(liveVM.isLoading)
+            .help("停止直播")
+            .accessibilityLabel("停止直播")
+        } else {
+            Button {
+                Task { await liveVM.startLiveWithCurrentSelection() }
+            } label: {
+                ZStack {
+                    Image(systemName: "record.circle")
+                        .foregroundStyle(.red)
+                        .opacity(liveVM.activity == .startLive ? 0 : liveVM.canStartLive ? 1 : 0.35)
+                    ProgressView()
+                        .controlSize(.small)
+                        .opacity(liveVM.activity == .startLive ? 1 : 0)
+                }
+            }
+            .disabled(!liveVM.canStartLive)
+            .help(liveVM.startBlockedReason ?? "开始直播")
+            .accessibilityLabel("开始直播")
         }
     }
 }
