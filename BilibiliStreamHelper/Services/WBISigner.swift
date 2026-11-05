@@ -30,9 +30,14 @@ class WBISigner {
         return result
     }
     
-    static func encWbi(params: [String: Any], imgKey: String, subKey: String) -> [String: Any] {
+    static func encWbi(
+        params: [String: Any],
+        imgKey: String,
+        subKey: String,
+        now: Int = Int(Date().timeIntervalSince1970)
+    ) -> [String: Any] {
         let mixinKey = getMixinKey(imgKey + subKey)
-        let currTime = Int(Date().timeIntervalSince1970)
+        let currTime = now
         
         var newParams = params
         newParams["wts"] = currTime
@@ -53,8 +58,12 @@ class WBISigner {
         }
         
         // 构建查询字符串
-        let queryParts = filteredParams.map { "\($0.key)=\($0.value)" }
-        let query = queryParts.joined(separator: "&")
+        //
+        // 必须按字典序遍历拼，不能拿 Dictionary 自己 map——它的遍历顺序不保证，
+        // 一旦和服务端"按 key 排序重算"的顺序对不上，w_rid 就校验失败，接口回 -352。
+        let query = sortedKeys
+            .map { "\($0)=\(filteredParams[$0] ?? "")" }
+            .joined(separator: "&")
         
         // 计算w_rid
         let signString = query + mixinKey
@@ -93,8 +102,10 @@ class WBISigner {
         let (imgKey, subKey) = try await getWbiKeys()
         let signedParams = encWbi(params: otherData, imgKey: imgKey, subKey: subKey)
         
-        let queryParts = signedParams.map { "\($0.key)=\($0.value)" }
-        let query = queryParts.joined(separator: "&")
+        // 和签名用同一套顺序，URL 里也按 key 排好
+        let query = signedParams.keys.sorted()
+            .map { "\($0)=\(signedParams[$0] ?? "")" }
+            .joined(separator: "&")
         
         return (signedParams, query)
     }

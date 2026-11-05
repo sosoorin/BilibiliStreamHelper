@@ -47,4 +47,8 @@ protocol BilibiliAPI: AnyObject {
     // MARK: - 弹幕
     
     func sendBullet(message: String) async throws
+    /// 弹幕长连接的地址和 token。断线重连时调用方会复用缓存，不会每次都来取。
+    func getDanmakuServerInfo(roomId: String) async throws -> DanmakuServerInfo
+    /// 进直播间时先垫几条最近的弹幕，长连接只推实时消息。
+    func getRecentDanmaku(roomId: String) async throws -> [DanmakuChatItem]
 }

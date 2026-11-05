@@ -27,6 +27,8 @@ final class FakeAPI: BilibiliAPI {
     var loadSavedLoginError: Error?
     var qrCodeResult: Result<QRCodeInfo, Error> = .failure(BilibiliAPIError.invalidResponse)
     var savedLoginInfo: LoginInfo?
+    var danmakuServerInfoResult: Result<DanmakuServerInfo, Error> = .failure(BilibiliAPIError.invalidResponse)
+    var recentDanmaku: [DanmakuChatItem] = []
     
     // MARK: 调用记录
     
@@ -34,6 +36,7 @@ final class FakeAPI: BilibiliAPI {
     private(set) var getQRCodeCount = 0
     private(set) var updateTitleCalls: [String] = []
     private(set) var startLiveCalls: [Int] = []
+    private(set) var danmakuServerInfoCalls: [String] = []
     
     // MARK: - 登录
     
@@ -100,4 +103,13 @@ final class FakeAPI: BilibiliAPI {
     // MARK: - 弹幕
     
     func sendBullet(message: String) async throws {}
+    
+    func getDanmakuServerInfo(roomId: String) async throws -> DanmakuServerInfo {
+        danmakuServerInfoCalls.append(roomId)
+        return try danmakuServerInfoResult.get()
+    }
+    
+    func getRecentDanmaku(roomId: String) async throws -> [DanmakuChatItem] {
+        recentDanmaku
+    }
 }

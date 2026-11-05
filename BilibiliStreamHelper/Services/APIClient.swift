@@ -36,6 +36,8 @@ class APIClient: ObservableObject {
     }
     var cookies: [HTTPCookie] = []
     var csrfToken: String = ""
+    /// 补过的 buvid3，避免每次请求都去 /x/frontend/finger/spi 要一遍（那个接口也会风控）
+    var cachedBuvid3: String?
     let session = URLSession.shared
     
     // App keys for signing

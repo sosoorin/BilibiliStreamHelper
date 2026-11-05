@@ -12,12 +12,13 @@ import os
 ///
 /// 用 `os.Logger` 而不是 `print`：可以在 Console.app 里按 subsystem / category 过滤，
 /// 也不会在 Release 包里把明文一直往终端吐。
-enum AppLog {
+nonisolated enum AppLog {
     private static let subsystem = "com.sosoorin.bilistreamhelper"
     
     static let network = Logger(subsystem: subsystem, category: "network")
     static let auth = Logger(subsystem: subsystem, category: "auth")
     static let live = Logger(subsystem: subsystem, category: "live")
+    static let danmaku = Logger(subsystem: subsystem, category: "danmaku")
 }
 
 // MARK: - 日志脱敏

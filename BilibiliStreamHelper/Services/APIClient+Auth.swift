@@ -360,6 +360,9 @@ extension APIClient {
         hasLoadedInitialLiveInfo = false
         liveInfo = nil
         
+        // 退登后弹幕长连接必须断，否则还在用旧账号的凭证收消息
+        DanmakuCenter.shared.disconnect()
+        
         // 清除系统Cookie存储
         if let cookieStorage = session.configuration.httpCookieStorage {
             for cookie in cookieStorage.cookies ?? [] {

@@ -56,6 +56,16 @@ struct SignerTests {
             #expect(rid.count == 32)
         }
     }
+    
+    /// 参数插入顺序不能影响 w_rid，否则服务端按 key 排序重算会校验失败（接口回 -352）
+    @Test func wbiSignIsOrderIndependent() {
+        let key = "7cd084941338484aae1ad9425b84077c"
+        let sub = "4932caff0ff746eab6f01bf08b70ac45"
+        let a = WBISigner.encWbi(params: ["id": "804842", "type": "0"], imgKey: key, subKey: sub, now: 1_793_859_102)
+        let b = WBISigner.encWbi(params: ["type": "0", "id": "804842"], imgKey: key, subKey: sub, now: 1_793_859_102)
+        
+        #expect(a["w_rid"] as? String == b["w_rid"] as? String)
+    }
 }
 
 // MARK: - 日志脱敏
